@@ -1,76 +1,124 @@
-from django.core.management.base import BaseCommand
+import uuid
+from django.db import models
 from django.contrib.auth.models import User
-from api.models import Profile, Credit, Student, Reader, Cycle, Submission, Evidence, EarnedCredit
-from datetime import datetime, timedelta
-from faker import Faker
-import random
 
-class Command(BaseCommand):
-    help = 'Populate the database with initial data'
-    fake = Faker()
+class Profile(models.Model):
+    class Role(models.TextChoices):
+        STUDENT = 'ST', 'Student'
+        READER = 'RE', 'Reader'
+        ADMIN = 'AD', 'Admin'
 
-    def handle(self, *args, **kwargs):
-        # self.create_users()
-        self.create_submissions()
-        self.stdout.write(self.style.SUCCESS('Database populated successfully'))
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, db_index=True)
+    role = models.CharField(max_length=2, choices=Role.choices, default=Role.STUDENT)
+    first_name = models.CharField(max_length=50)
+    last_name = models.CharField(max_length=50)
+    email = models.EmailField(unique=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-    def create_users(self):
-        for i in range(1, 271):
-            first_name = self.fake.first_name()
-            last_name = self.fake.last_name()
-            graduation_year = self.fake.random_int(min=2025, max=2028)
-            username = f'{str(graduation_year)[-2:]}{last_name[:3].lower()}{first_name[:3].lower()}'
-            email = f'{username}@hawken.edu'
-            user = User.objects.create_user(username=username, password='password')
-            profile = Profile.objects.create(user=user, role=Profile.STUDENT_ROLE, first_name=first_name, last_name=last_name, email=email)
-            Student.objects.create(profile=profile, graduation_year=graduation_year)
+    class Meta:
+        indexes = [
+            models.Index(fields=['role']),
+        ]
 
-        credits = list(Credit.objects.all())
-        for i in range(1, 31):
-            first_name = self.fake.first_name()
-            last_name = self.fake.last_name()
-            username = f'{first_name}.{last_name}'
-            email = f'{username}@hawken.edu'
-            user = User.objects.create_user(username=username, password='password')
-            profile = Profile.objects.create(user=user, role=Profile.READER_ROLE, first_name=first_name, last_name=last_name, email=email)
-            reader = Reader.objects.create(profile=profile)
-            comfortable_credits = random.sample(credits, random.randint(3, 7))
-            reader.comfortable_credits.set(comfortable_credits)
+class Credit(models.Model):
+    number = models.CharField(max_length=5)
+    name = models.CharField(max_length=50)
+    simple_description = models.TextField()
+    detailed_description = models.TextField()
 
-    def create_submissions(self):
-        students = Student.objects.all()
-        cycles = Cycle.objects.all().order_by('submission_deadline')
-        credits = list(Credit.objects.all())
-        readers = Reader.objects.all()
+    class Meta:
+        ordering = ['number']
 
-        for student in students:
-            earned_credits = set(EarnedCredit.objects.filter(student=student).values_list('credit', flat=True))
-            for cycle in cycles:
-                available_credits = [credit for credit in credits if credit.id not in earned_credits]
-                num_submissions = min(random.randint(1, 8), len(available_credits))
-                selected_credits = random.sample(available_credits, num_submissions)
-                for credit in selected_credits:
-                    reader = self.fake.random_element(elements=readers)
-                    created_at = self.fake.date_time_between(start_date=cycle.submission_deadline - timedelta(days=90), end_date=cycle.submission_deadline - timedelta(days=2))
-                    submitted_at = self.fake.date_time_between(start_date=created_at, end_date=cycle.submission_deadline)
-                    if cycle.current:
-                        status = Submission.UNREVIEWED
-                        decision = Submission.TBD
-                        feedback = None
-                        completed_at = None
-                    else:
-                        status = Submission.COMPLETE
-                        decision = random.choice([Submission.EARNED, Submission.NOT_EARNED])
-                        feedback = self.fake.text()
-                        completed_at = self.fake.date_time_between(start_date=cycle.submission_deadline + timedelta(days=3), end_date=cycle.submission_deadline + timedelta(days=7))
-                    submission = Submission.objects.create(student=student, cycle=cycle, credit=credit, reader=reader, rationale=self.fake.text(), feedback=feedback, decision=decision, status=status, created_at=created_at, submitted_at=submitted_at, completed_at=completed_at)
-                    self.create_evidences(submission)
-                    if decision == Submission.EARNED:
-                        EarnedCredit.objects.create(student=student, credit=credit, cycle=cycle, earned=completed_at)
-                        earned_credits.add(credit.id)
+class Student(models.Model):
+    profile = models.OneToOneField(Profile, on_delete=models.CASCADE, primary_key=True)
+    graduation_year = models.IntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
-    def create_evidences(self, submission):
-        num_evidences = random.randint(2, 3)
-        for _ in range(num_evidences):
-            Evidence.objects.create(submission=submission, link=self.fake.url(), description=self.fake.text())
+    class Meta:
+        indexes = [
+            models.Index(fields=['graduation_year']),
+        ]
+
+class ReaderCreditComfort(models.Model):
+    class ComfortLevel(models.IntegerChoices):
+        LOW = 1, 'Low'
+        MEDIUM = 2, 'Medium'
+        HIGH = 3, 'High'
+
+    reader = models.ForeignKey('Reader', on_delete=models.CASCADE)
+    credit = models.ForeignKey(Credit, on_delete=models.CASCADE)
+    comfort_level = models.IntegerField(choices=ComfortLevel.choices)
+
+    class Meta:
+        unique_together = ['reader', 'credit']
+
+class Reader(models.Model):
+    profile = models.OneToOneField(Profile, on_delete=models.CASCADE, primary_key=True)
+    comfortable_credits = models.ManyToManyField(Credit, through=ReaderCreditComfort)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+class Cycle(models.Model):
+    season = models.CharField(max_length=50)
+    year = models.IntegerField()
+    submission_deadline = models.DateField()
+    current = models.BooleanField(default=False)
+
+    class Meta:
+        unique_together = ['season', 'year']
+        ordering = ['-year', 'season']
+
+class Submission(models.Model):
+    class Status(models.TextChoices):
+        WRITING = 'WR', 'Writing'
+        UNREVIEWED = 'UN', 'Unreviewed'
+        IN_PROGRESS = 'RE', 'In Progress'
+        COMPLETE = 'CO', 'Complete'
+
+    class Decision(models.TextChoices):
+        NOT_EARNED = 'NE', 'Not Earned'
+        TBD = 'TB', 'TBD'
+        EARNED = 'EA', 'Earned'
+
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    student = models.ForeignKey(Student, on_delete=models.PROTECT, db_index=True)
+    cycle = models.ForeignKey(Cycle, on_delete=models.CASCADE, db_index=True)
+    credit = models.ForeignKey(Credit, on_delete=models.PROTECT, db_index=True)
+    reader = models.ForeignKey(Reader, on_delete=models.PROTECT, null=True, db_index=True)
+    rationale = models.TextField(default='')
+    feedback = models.TextField(null=True)
+    decision = models.CharField(max_length=2, choices=Decision.choices, default=Decision.TBD)
+    status = models.CharField(max_length=2, choices=Status.choices, default=Status.WRITING)
+    created_at = models.DateTimeField(auto_now_add=True)
+    submitted_at = models.DateTimeField(null=True)
+    completed_at = models.DateTimeField(null=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['status', 'decision']),
+        ]
+
+class Evidence(models.Model):
+    submission = models.ForeignKey(Submission, on_delete=models.CASCADE, related_name='evidences')
+    link = models.URLField()
+    description = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+class EarnedCredit(models.Model):
+    student = models.ForeignKey(Student, on_delete=models.CASCADE)
+    credit = models.ForeignKey(Credit, on_delete=models.PROTECT)
+    cycle = models.ForeignKey(Cycle, on_delete=models.PROTECT)
+    earned = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ['student', 'credit', 'cycle']
+        ordering = ['-earned']
 

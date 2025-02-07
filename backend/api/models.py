@@ -7,7 +7,7 @@ class Profile(models.Model):
     ADMIN_ROLE = 'AD'
     ROLES = (STUDENT_ROLE, 'Student'), (READER_ROLE, 'Reader'), (ADMIN_ROLE, 'Admin')
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True)
+    user = models.OneToOneField(User, on_delete=models.CASCADE, primary_key=True, db_index=True)
     role = models.CharField(max_length=50, choices=ROLES, default=STUDENT_ROLE)
     first_name = models.CharField(max_length=50)
     last_name = models.CharField(max_length=50)
@@ -16,7 +16,7 @@ class Profile(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        print("Saving profile:", self)
+        # print("Saving profile:", self)
         super().save(*args, **kwargs)
 
 class Credit(models.Model):
@@ -26,7 +26,7 @@ class Credit(models.Model):
     detailed_description = models.TextField()
 
     def save(self, *args, **kwargs):
-        print("Saving credit:", self)
+        # print("Saving credit:", self)
         super().save(*args, **kwargs)
 
 class Student(models.Model):
@@ -36,7 +36,7 @@ class Student(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        print("Saving student:", self)
+        # print("Saving student:", self)
         super().save(*args, **kwargs)
 
 class Reader(models.Model):
@@ -46,7 +46,7 @@ class Reader(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        print("Saving reader:", self)
+        # print("Saving reader:", self)
         super().save(*args, **kwargs)
 
 class Cycle(models.Model):
@@ -56,7 +56,7 @@ class Cycle(models.Model):
     current = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
-        print("Saving cycle:", self)
+        # print("Saving cycle:", self)
         super().save(*args, **kwargs)
 
 class Submission(models.Model):
@@ -70,10 +70,10 @@ class Submission(models.Model):
     EARNED = 'EA'
     DECISIONS = (NOT_EARNED, 'Not Earned'), (TBD, 'TBD'), (EARNED, 'Earned')
 
-    student = models.ForeignKey(Student, on_delete=models.PROTECT)
-    cycle = models.ForeignKey(Cycle, on_delete=models.CASCADE)
-    credit = models.ForeignKey(Credit, on_delete=models.PROTECT)
-    reader = models.ForeignKey(Reader, on_delete=models.PROTECT, null=True)
+    student = models.ForeignKey(Student, on_delete=models.PROTECT, db_index=True)
+    cycle = models.ForeignKey(Cycle, on_delete=models.CASCADE, db_index=True)
+    credit = models.ForeignKey(Credit, on_delete=models.PROTECT, db_index=True)
+    reader = models.ForeignKey(Reader, on_delete=models.PROTECT, null=True, db_index=True)
     rationale = models.TextField(default='')
     feedback = models.TextField(null=True)
     decision = models.CharField(max_length=50, choices=DECISIONS, default=TBD)
@@ -84,7 +84,7 @@ class Submission(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        print("Saving submission:", self)
+        # print("Saving submission:", self)
         super().save(*args, **kwargs)
 
 class Evidence(models.Model):
@@ -95,7 +95,7 @@ class Evidence(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        print("Saving evidence:", self)
+        # print("Saving evidence:", self)
         super().save(*args, **kwargs)
 
 class EarnedCredit(models.Model):
@@ -105,7 +105,7 @@ class EarnedCredit(models.Model):
     earned = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        print("Saving earned credit:", self)
+        # print("Saving earned credit:", self)
         super().save(*args, **kwargs)
 
 

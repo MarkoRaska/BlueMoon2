@@ -13,7 +13,8 @@ function Home() {
 
   const getAssignedSubmissions = async () => {
     try {
-      console.time("Fetching assigned submissions");
+      const timerLabel = "Fetching assigned submissions";
+      console.time(timerLabel);
       const networkStartTime = performance.now();
       const res = await api.get("/api/readers/assigned_submissions/");
       const networkEndTime = performance.now();
@@ -38,24 +39,25 @@ function Home() {
         `State update time: ${stateUpdateEndTime - stateUpdateStartTime} ms`
       );
 
-      console.timeEnd("Fetching assigned submissions");
+      console.timeEnd(timerLabel);
     } catch (error) {
       console.error("Error fetching assigned submissions:", error);
-      alert(error);
+      alert("Error fetching assigned submissions. Please try again later.");
     }
   };
 
   const getProfile = async () => {
     try {
-      console.time("Fetching profile");
+      const timerLabel = "Fetching profile";
+      console.time(timerLabel);
       const res = await api.get("/api/profiles/me/");
       const data = res.data;
       console.log("Profile data:", data);
       setProfile(data);
-      console.timeEnd("Fetching profile");
+      console.timeEnd(timerLabel);
     } catch (error) {
       console.error("Error fetching profile:", error);
-      alert(error);
+      alert("Error fetching profile. Please try again later.");
     }
   };
 
@@ -67,10 +69,10 @@ function Home() {
         <ul>
           {assignedSubmissions.map((submission) => (
             <li key={submission.id}>
-              {submission.student.profile.first_name}{" "}
-              {submission.student.profile.last_name} - {submission.cycle.season}{" "}
-              {submission.cycle.year} - {submission.credit.number}{" "}
-              {submission.credit.name} - {submission.rationale}
+              {submission.student.first_name} {submission.student.last_name} -{" "}
+              {submission.cycle.season} {submission.cycle.year} -{" "}
+              {submission.credit.number} {submission.credit.name} -{" "}
+              {submission.rationale}
             </li>
           ))}
         </ul>

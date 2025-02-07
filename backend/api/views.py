@@ -1,13 +1,15 @@
 import time
 import json
-from django.shortcuts import render
+from django.db import transaction
+from django.core.cache import cache
 from django.contrib.auth.models import User
 from rest_framework import generics, serializers, viewsets
-from .serializers import UserSerializer, ProfileSerializer, CreditSerializer, StudentSerializer, ReaderSerializer, CycleSerializer, SubmissionSerializer, EvidenceSerializer, EarnedCreditSerializer
-from .models import Profile, Credit, Student, Reader, Cycle, Submission, Evidence, EarnedCredit
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.decorators import action
 from rest_framework.response import Response
+from django.http import JsonResponse
+from .serializers import UserSerializer, ProfileSerializer, CreditSerializer, StudentSerializer, ReaderSerializer, CycleSerializer, SubmissionSerializer, EvidenceSerializer, EarnedCreditSerializer
+from .models import Profile, Credit, Student, Reader, Cycle, Submission, Evidence, EarnedCredit
 from .permissions import IsStudentOrReadOnly
 
 class CreateUserView(generics.CreateAPIView):
@@ -15,27 +17,23 @@ class CreateUserView(generics.CreateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+    @transaction.atomic
     def perform_create(self, serializer):
-        print("Creating user with data:", serializer.validated_data)
         user = serializer.save()
         profile_data = self.request.data.get('profile', {})
-        print("Profile data:", profile_data)
-        profile_data['user'] = user.id
-        profile_serializer = ProfileSerializer(data=profile_data)
-        if profile_serializer.is_valid():
-            profile = profile_serializer.save(user=user)
-            print("Profile created:", profile)
-            if profile.role == Profile.STUDENT_ROLE:
-                graduation_year = self.request.data.get('graduation_year')
-                Student.objects.create(profile=profile, graduation_year=graduation_year)
-                print("Student profile created with graduation year:", graduation_year)
-            elif profile.role == Profile.READER_ROLE:
-                Reader.objects.create(profile=profile)
-                print("Reader profile created")
-        else:
-            user.delete()
-            print("Profile creation failed:", profile_serializer.errors)
-            raise serializers.ValidationError(profile_serializer.errors)
+        
+        profile = Profile.objects.create(
+            user=user,
+            **{k: v for k, v in profile_data.items() if k in ['role', 'first_name', 'last_name', 'email']}
+        )
+        
+        if profile.role == Profile.STUDENT_ROLE:
+            Student.objects.create(
+                profile=profile,
+                graduation_year=self.request.data.get('graduation_year')
+            )
+        elif profile.role == Profile.READER_ROLE:
+            Reader.objects.create(profile=profile)
 
 class ProfileViewSet(viewsets.ModelViewSet):
     queryset = Profile.objects.all()
@@ -46,7 +44,6 @@ class ProfileViewSet(viewsets.ModelViewSet):
     def me(self, request):
         profile = self.queryset.get(user=request.user)
         serializer = self.get_serializer(profile)
-        print("Returning profile for current user:", serializer.data)
         return Response(serializer.data)
 
 class CreditViewSet(viewsets.ModelViewSet):
@@ -66,32 +63,45 @@ class ReaderViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['get'], permission_classes=[IsAuthenticated])
     def assigned_submissions(self, request):
-        start_time = time.time()
-        current_cycle = Cycle.objects.filter(current=True).first()
-        if not current_cycle:
-            return Response({"detail": "No current cycle found."}, status=404)
+        cache_key = f'assigned_submissions_{request.user.id}'
+        if cached := cache.get(cache_key):
+            return Response(cached)
         
-        reader = self.queryset.filter(profile__user=request.user).first()
-        if not reader:
-            return Response({"detail": "Reader not found."}, status=404)
+        try:
+            print("Fetching current cycle")
+            current_cycle = Cycle.objects.get(current=True)
+            print(f"Current cycle: {current_cycle}")
+
+            print("Fetching reader")
+            reader = Reader.objects.select_related('profile').prefetch_related('comfortable_credits').get(profile__user=request.user)
+            print(f"Reader: {reader}")
+
+            print("Fetching submissions")
+            submissions = Submission.objects.filter(
+                reader=reader, 
+                cycle=current_cycle
+            ).select_related(
+                'student__profile',
+                'cycle',
+                'credit',
+                'reader__profile'
+            ).prefetch_related('evidence_set')
+            print(f"Submissions: {submissions}")
+
+            serializer = SubmissionSerializer(submissions, many=True)
+            response_data = serializer.data
+            cache.set(cache_key, response_data, timeout=300)
+            return Response(response_data)
         
-        query_start_time = time.time()
-        submissions = Submission.objects.filter(reader=reader, cycle=current_cycle).select_related('student__profile', 'cycle', 'credit')
-        query_end_time = time.time()
-        
-        serializer_start_time = time.time()
-        serializer = SubmissionSerializer(submissions, many=True)
-        serializer_end_time = time.time()
-        
-        response_data = serializer.data
-        response_size = len(json.dumps(response_data))
-        
-        end_time = time.time()
-        print(f"Time taken to fetch assigned submissions: {end_time - start_time} seconds")
-        print(f"Time taken for query: {query_end_time - query_start_time} seconds")
-        print(f"Time taken for serialization: {serializer_end_time - serializer_start_time} seconds")
-        print(f"Response size: {response_size} bytes")
-        return Response(response_data)
+        except Cycle.DoesNotExist:
+            print("No current cycle found")
+            return JsonResponse({"detail": "No current cycle found."}, status=404)
+        except Reader.DoesNotExist:
+            print("Reader not found")
+            return JsonResponse({"detail": "Reader not found."}, status=404)
+        except Exception as e:
+            print(f"Error fetching assigned submissions: {e}")
+            return JsonResponse({"detail": "Internal server error."}, status=500)
 
 class CycleViewSet(viewsets.ModelViewSet):
     queryset = Cycle.objects.all()
@@ -102,24 +112,10 @@ class SubmissionViewSet(viewsets.ModelViewSet):
     queryset = Submission.objects.all()
     serializer_class = SubmissionSerializer
     permission_classes = [IsAuthenticated, IsStudentOrReadOnly]
-
+    
     def perform_create(self, serializer):
         current_cycle = Cycle.objects.get(current=True)
-        print("Current cycle:", current_cycle)
-        print("Request data:", self.request.data)
-        if serializer.is_valid():
-            submission = serializer.save(cycle=current_cycle)
-            print("Submission created:", submission)
-        else:
-            print("Submission creation failed:", serializer.errors)
-            raise serializers.ValidationError(serializer.errors)
-
-    def create(self, request, *args, **kwargs):
-        print("Create method called with data:", request.data)
-        response = super().create(request, *args, **kwargs)
-        print("Response status code:", response.status_code)
-        print("Response data:", response.data)
-        return response
+        serializer.save(cycle=current_cycle)
 
 class EvidenceViewSet(viewsets.ModelViewSet):
     queryset = Evidence.objects.all()
@@ -130,11 +126,4 @@ class EarnedCreditViewSet(viewsets.ModelViewSet):
     queryset = EarnedCredit.objects.all()
     serializer_class = EarnedCreditSerializer
     permission_classes = [IsAuthenticated]
-
-
-
-
-
-
-
 
