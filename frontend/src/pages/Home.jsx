@@ -2,83 +2,83 @@ import { useState, useEffect } from "react";
 import api from "../api";
 
 function Home() {
-  const [notes, setNotes] = useState([]);
-  const [content, setContent] = useState("");
-  const [title, setTitle] = useState("");
+  const [assignedSubmissions, setAssignedSubmissions] = useState([]);
+  const [profile, setProfile] = useState(null);
 
   useEffect(() => {
-    getNotes();
+    console.log("Fetching assigned submissions and profile");
+    getAssignedSubmissions();
+    getProfile();
   }, []);
 
-  const getNotes = async () => {
-    api
-      .get("/api/notes/")
-      .then((res) => res.data)
-      .then((data) => {
-        setNotes(data);
-        console.log(data);
-      })
-      .catch((error) => alert(error));
+  const getAssignedSubmissions = async () => {
+    try {
+      console.time("Fetching assigned submissions");
+      const networkStartTime = performance.now();
+      const res = await api.get("/api/readers/assigned_submissions/");
+      const networkEndTime = performance.now();
+      console.log(
+        `Network request time: ${networkEndTime - networkStartTime} ms`
+      );
+
+      const dataProcessingStartTime = performance.now();
+      const data = res.data;
+      console.log("Assigned submissions data:", data);
+      const dataProcessingEndTime = performance.now();
+      console.log(
+        `Data processing time: ${
+          dataProcessingEndTime - dataProcessingStartTime
+        } ms`
+      );
+
+      const stateUpdateStartTime = performance.now();
+      setAssignedSubmissions(data);
+      const stateUpdateEndTime = performance.now();
+      console.log(
+        `State update time: ${stateUpdateEndTime - stateUpdateStartTime} ms`
+      );
+
+      console.timeEnd("Fetching assigned submissions");
+    } catch (error) {
+      console.error("Error fetching assigned submissions:", error);
+      alert(error);
+    }
   };
 
-  const deleteNote = async (id) => {
-    api
-      .delete(`/api/notes/${id}/`)
-      .then((res) => {
-        if (res.status === 204) alert("Note deleted");
-        else alert("Failed to delete note");
-      })
-      .catch((error) => alert(error));
-    getNotes();
+  const getProfile = async () => {
+    try {
+      console.time("Fetching profile");
+      const res = await api.get("/api/profiles/me/");
+      const data = res.data;
+      console.log("Profile data:", data);
+      setProfile(data);
+      console.timeEnd("Fetching profile");
+    } catch (error) {
+      console.error("Error fetching profile:", error);
+      alert(error);
+    }
   };
 
-  const createNote = async (e) => {
-    e.preventDefault();
-    console.log(title, content);
-    api
-      .post("/api/notes/", { title, content })
-      .then((res) => {
-        if (res.status === 201) alert("Note created!");
-        else alert("Failed to create note");
-        console.log(res);
-      })
-      .catch((error) => alert(error));
-    getNotes();
-  };
-
-  return (
+  console.time("Rendering Home component");
+  const renderedComponent = (
     <div>
       <div>
-        <h2>Notes</h2>
-      </div>
-      <div>
-        <h3>Create Note</h3>
-        <form onSubmit={createNote}>
-          <label htmlFor="title">Title:</label>
-          <br />
-          <input
-            type="title"
-            id="title"
-            name="title"
-            required
-            onChange={(e) => setTitle(e.target.value)}
-            value={title}
-          />
-          <label htmlFor="content">Content:</label>
-          <br />
-          <textarea
-            id="content"
-            name="content"
-            required
-            onChange={(e) => setContent(e.target.value)}
-            value={content}
-          />
-          <br />
-          <input type="submit" value="Submit"></input>
-        </form>
+        <h2>Assigned Submissions</h2>
+        <ul>
+          {assignedSubmissions.map((submission) => (
+            <li key={submission.id}>
+              {submission.student.profile.first_name}{" "}
+              {submission.student.profile.last_name} - {submission.cycle.season}{" "}
+              {submission.cycle.year} - {submission.credit.number}{" "}
+              {submission.credit.name} - {submission.rationale}
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
+  console.timeEnd("Rendering Home component");
+  return renderedComponent;
 }
 
 export default Home;
