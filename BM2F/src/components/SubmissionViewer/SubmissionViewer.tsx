@@ -107,6 +107,7 @@ const SubmissionViewer = ({
             onFeedbackChange={handleFeedbackChange}
             student={`${submission.student.first_name} ${submission.student.last_name}`}
             credit={submission.credit.number}
+            submissionId={submission.id} // Pass submissionId to Feedback component
           />
         </div>
         <NotePad

@@ -8,11 +8,13 @@ interface Submission {
   current_decision: "Undecided" | "TBD" | "Earned" | "Not Earned";
   state: "Unreviewed" | "In Progress" | "Complete";
   rationale: string;
+  feedback: string; // Add feedback field
 }
 
 interface SubmissionContextProps {
   submissions: Submission[];
   setSubmissions: React.Dispatch<React.SetStateAction<Submission[]>>;
+  updateSubmission: (updatedSubmission: Submission) => void; // Add updateSubmission method
 }
 
 const SubmissionContext = createContext<SubmissionContextProps | undefined>(
@@ -45,8 +47,18 @@ export const SubmissionProvider: React.FC = ({ children }) => {
     fetchSubmissions();
   }, []);
 
+  const updateSubmission = (updatedSubmission: Submission) => {
+    setSubmissions((prevSubmissions) =>
+      prevSubmissions.map((submission) =>
+        submission.id === updatedSubmission.id ? updatedSubmission : submission
+      )
+    );
+  };
+
   return (
-    <SubmissionContext.Provider value={{ submissions, setSubmissions }}>
+    <SubmissionContext.Provider
+      value={{ submissions, setSubmissions, updateSubmission }}
+    >
       {children}
     </SubmissionContext.Provider>
   );

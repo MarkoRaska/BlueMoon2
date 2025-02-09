@@ -55,7 +55,7 @@ const ReaderHome = () => {
         <div style={{ flexGrow: 1, height: "calc(100vh - 70px)" }}>
           {selectedSubmissionData ? (
             <SubmissionViewer
-              submission={selectedSubmissionData}
+              submission={selectedSubmissionData} // Pass submission data to SubmissionViewer
               notePadContent={
                 notePadContents[
                   `${selectedSubmissionData.student.first_name} ${selectedSubmissionData.student.last_name}`

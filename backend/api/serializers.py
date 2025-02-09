@@ -63,7 +63,7 @@ class SubmissionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Submission
-        fields = ['id', 'student', 'cycle', 'credit', 'reader', 'rationale', 'feedback', 'decision', 'status', 'created_at', 'submitted_at', 'completed_at', 'updated_at']
+        fields = ['id', 'student', 'cycle', 'credit', 'reader', 'rationale', 'feedback', 'decision', 'status', 'created_at', 'submitted_at', 'completed_at', 'updated_at', 'notes']
 
     def get_student(self, obj):
         return {

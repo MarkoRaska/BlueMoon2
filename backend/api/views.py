@@ -153,14 +153,28 @@ class SaveFeedbackView(APIView):
     def post(self, request):
         submission_id = request.data.get("submissionId")
         feedback = request.data.get("feedback")
+        print(f"Received feedback for submission {submission_id}: {feedback}")  # Debugging log
 
         try:
             submission = Submission.objects.get(id=submission_id)
             submission.feedback = feedback
             submission.save()
+            print(f"Feedback saved for submission {submission_id}")  # Debugging log
+
+            # Invalidate or update the cache
+            cache_key = f'assigned_submissions_{submission.reader.profile.user.id}'
+            cached_data = cache.get(cache_key)
+            if cached_data:
+                for cached_submission in cached_data:
+                    if cached_submission['id'] == submission_id:
+                        cached_submission['feedback'] = feedback
+                cache.set(cache_key, cached_data, timeout=300)
+
             return Response({"detail": "Feedback saved successfully."}, status=200)
         except Submission.DoesNotExist:
+            print(f"Submission {submission_id} not found")  # Debugging log
             return Response({"detail": "Submission not found."}, status=404)
         except Exception as e:
+            print(f"Error saving feedback for submission {submission_id}: {e}")  # Debugging log
             return Response({"detail": "Internal server error."}, status=500)
 

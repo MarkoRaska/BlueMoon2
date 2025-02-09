@@ -78,6 +78,7 @@ class Submission(models.Model):
     feedback = models.TextField(null=True)
     decision = models.CharField(max_length=50, choices=DECISIONS, default=TBD)
     status = models.CharField(max_length=50, choices=STATUS, default=WRITING)
+    notes = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     submitted_at = models.DateTimeField(null=True)
     completed_at = models.DateTimeField(null=True)

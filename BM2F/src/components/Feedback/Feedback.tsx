@@ -1,5 +1,8 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import TextEditor from "../TextEditor";
+import axiosInstance from "../../utils/axiosInstance"; // Import axiosInstance for API calls
+import { debounce } from "../../utils/debounce"; // Import debounce function
+import { useSubmissions } from "../../context/SubmissionContext"; // Import useSubmissions hook
 import "./Feedback.css";
 
 interface FeedbackProps {
@@ -7,6 +10,7 @@ interface FeedbackProps {
   onFeedbackChange: (feedback: string) => void;
   student: string;
   credit: number;
+  submissionId: string; // Add submissionId prop
 }
 
 const Feedback = ({
@@ -14,9 +18,11 @@ const Feedback = ({
   onFeedbackChange,
   student,
   credit,
+  submissionId, // Add submissionId prop
 }: FeedbackProps) => {
   const [, setLeftOffset] = useState(0);
   const [bottomOffset, setBottomOffset] = useState(0);
+  const { updateSubmission } = useSubmissions(); // Get updateSubmission method from context
 
   useEffect(() => {
     const updateOffsets = () => {
@@ -47,6 +53,27 @@ const Feedback = ({
     };
   }, []);
 
+  const saveFeedback = async (newFeedback: string) => {
+    console.log("Saving feedback:", newFeedback); // Debugging log
+    try {
+      const response = await axiosInstance.post("/api/save_feedback/", {
+        submissionId,
+        feedback: newFeedback,
+      });
+      console.log("Feedback saved response:", response.data); // Debugging log
+      updateSubmission({ ...response.data, feedback: newFeedback }); // Update context with new feedback
+    } catch (error) {
+      console.error("Failed to save feedback", error);
+    }
+  };
+
+  const debouncedSaveFeedback = useCallback(debounce(saveFeedback, 500), []);
+
+  const handleFeedbackChange = (newFeedback: string) => {
+    onFeedbackChange(newFeedback);
+    debouncedSaveFeedback(newFeedback);
+  };
+
   return (
     <div
       className="feedback-container"
@@ -63,7 +90,7 @@ const Feedback = ({
       <h2>
         Feedback for {student} (Credit: {credit})
       </h2>
-      <TextEditor value={feedback} onChange={onFeedbackChange} />
+      <TextEditor value={feedback} onChange={handleFeedbackChange} />
     </div>
   );
 };
