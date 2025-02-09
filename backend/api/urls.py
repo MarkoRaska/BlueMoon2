@@ -17,4 +17,6 @@ urlpatterns = [
     path('users/', views.CreateUserView.as_view(), name='user-create'),
     path('profiles/me/', views.ProfileViewSet.as_view({'get': 'me'}), name='profile-me'),
     path('readers/assigned_submissions/', views.ReaderViewSet.as_view({'get': 'assigned_submissions'}), name='reader-assigned-submissions'),
+    path('token/', views.CustomAuthToken.as_view(), name='token_obtain_pair'),  # Ensure this path matches the frontend
+    path('save_feedback/', views.SaveFeedbackView.as_view(), name='save_feedback'),
 ]

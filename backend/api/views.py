@@ -11,6 +11,11 @@ from django.http import JsonResponse
 from .serializers import UserSerializer, ProfileSerializer, CreditSerializer, StudentSerializer, ReaderSerializer, CycleSerializer, SubmissionSerializer, EvidenceSerializer, EarnedCreditSerializer
 from .models import Profile, Credit, Student, Reader, Cycle, Submission, Evidence, EarnedCredit
 from .permissions import IsStudentOrReadOnly
+from rest_framework.authtoken.views import ObtainAuthToken
+from rest_framework.authtoken.models import Token
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.parsers import JSONParser
 
 class CreateUserView(generics.CreateAPIView):
     permission_classes = [AllowAny]
@@ -65,6 +70,7 @@ class ReaderViewSet(viewsets.ModelViewSet):
     def assigned_submissions(self, request):
         cache_key = f'assigned_submissions_{request.user.id}'
         if cached := cache.get(cache_key):
+            print("Sending cached data:", cached)
             return Response(cached)
         
         try:
@@ -90,6 +96,7 @@ class ReaderViewSet(viewsets.ModelViewSet):
 
             serializer = SubmissionSerializer(submissions, many=True)
             response_data = serializer.data
+            print("Sending data:", response_data)
             cache.set(cache_key, response_data, timeout=300)
             return Response(response_data)
         
@@ -126,4 +133,34 @@ class EarnedCreditViewSet(viewsets.ModelViewSet):
     queryset = EarnedCredit.objects.all()
     serializer_class = EarnedCreditSerializer
     permission_classes = [IsAuthenticated]
+
+class CustomAuthToken(ObtainAuthToken):
+    def post(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        serializer.is_valid(raise_exception=True)
+        user = serializer.validated_data['user']
+        token, created = Token.objects.get_or_create(user=user)
+        return Response({
+            'token': token.key,
+            'user_id': user.pk,
+            'username': user.username
+        })
+
+class SaveFeedbackView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [JSONParser]
+
+    def post(self, request):
+        submission_id = request.data.get("submissionId")
+        feedback = request.data.get("feedback")
+
+        try:
+            submission = Submission.objects.get(id=submission_id)
+            submission.feedback = feedback
+            submission.save()
+            return Response({"detail": "Feedback saved successfully."}, status=200)
+        except Submission.DoesNotExist:
+            return Response({"detail": "Submission not found."}, status=404)
+        except Exception as e:
+            return Response({"detail": "Internal server error."}, status=500)
 
