@@ -1,0 +1,26 @@
+.submissions-list-container {
+  position: relative;
+  height: 100%;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  background-color: white;
+  z-index: 10;
+}
+
+.submissions-list {
+  overflow-y: auto;
+  height: calc(100% - 90px); /* Adjust based on the height of the sticky header */
+}
+
+.submission-item {
+  /* Submission item styles */
+}
+
+.multi-progress-bar {
+  width: 100%;
+  margin-top: 5px;
+  border: 2px solid black; /* Add a 2-pixel outline */
+}

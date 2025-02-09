@@ -1,0 +1,34 @@
+.submission-container {
+  display: flex;
+  border: 3px solid black;
+  padding: 10px;
+  width: 250px;
+  height: 50px;
+  border-radius: 10px;
+  justify-content: space-between;
+  align-items: center;
+  cursor: pointer;
+}
+
+.submission-name {
+  font-size: 24px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+  display: inline-block;
+  text-align: center;
+  line-height: 1.2; /* Adjust line height for better vertical alignment */
+}
+
+.submission-name::after {
+  content: attr(data-fullname);
+  visibility: hidden;
+  white-space: nowrap;
+}
+
+.submission-name {
+  font-size: calc(24px - 0.5vw);
+  max-width: 100%;
+  display: inline-block;
+}
