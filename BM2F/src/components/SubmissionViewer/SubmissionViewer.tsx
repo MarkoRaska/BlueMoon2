@@ -1,39 +1,48 @@
 import { useEffect, useState } from "react";
 import Feedback from "../Feedback";
 import NotePad from "../NotePad";
+import { useSubmissions } from "../../context/SubmissionContext"; // Import useSubmissions hook
 import "./SubmissionViewer.css";
 
 interface SubmissionViewerProps {
-  submission: {
-    credit: { number: number; name: string };
-    student: { first_name: string; last_name: string };
-    current_decision: "TBD" | "Earned" | "Not Earned" | "Undecided";
-    state: "Unreviewed" | "In Progress" | "Complete";
-    rationale: string;
-    id: string;
-    feedback: string; // Add feedback field
-  } | null;
+  submissionId: string | null; // Change to submissionId
   notePadContent: string;
   onNotePadChange: (student: string, content: string) => void;
   isSubmissionListOpen: boolean; // Add prop to check if submission list is open
 }
 
 const SubmissionViewer = ({
-  submission,
+  submissionId,
   notePadContent,
   onNotePadChange,
   isSubmissionListOpen,
 }: SubmissionViewerProps) => {
-  const [feedback, setFeedback] = useState(
-    submission ? submission.feedback : ""
+  const { submissions, updateSubmission } = useSubmissions(); // Get submissions and updateSubmission from context
+  const [feedback, setFeedback] = useState("");
+  const [notes, setNotes] = useState("");
+
+  const submission = submissions.find(
+    (submission) => submission.id === submissionId
   );
 
   useEffect(() => {
+    console.log("SubmissionViewer received submission:", submission?.id); // Simplified logging
     setFeedback(submission ? submission.feedback : "");
-  }, [submission]);
+    setNotes(submission ? submission.notes : ""); // Set notes state
+  }, [submissionId]);
 
   const handleFeedbackChange = (feedback: string) => {
     setFeedback(feedback);
+    if (submission) {
+      updateSubmission({ ...submission, feedback });
+    }
+  };
+
+  const handleNotesChange = (notes: string) => {
+    setNotes(notes);
+    if (submission) {
+      updateSubmission({ ...submission, notes });
+    }
   };
 
   if (!submission) {
@@ -107,18 +116,19 @@ const SubmissionViewer = ({
             onFeedbackChange={handleFeedbackChange}
             student={`${submission.student.first_name} ${submission.student.last_name}`}
             credit={submission.credit.number}
-            submissionId={submission.id} // Pass submissionId to Feedback component
+            submissionId={submission.id} // Ensure submissionId is passed correctly
           />
         </div>
         <NotePad
           student={`${submission.student.first_name} ${submission.student.last_name}`}
-          content={notePadContent}
+          content={notes} // Pass notes state to NotePad
           onContentChange={(content) =>
             onNotePadChange(
               `${submission.student.first_name} ${submission.student.last_name}`,
               content
             )
           }
+          submissionId={submission.id} // Ensure submissionId is passed correctly
         />
       </div>
     </div>

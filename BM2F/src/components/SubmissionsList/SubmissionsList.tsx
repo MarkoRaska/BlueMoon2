@@ -16,7 +16,10 @@ const SubmissionsList = ({
   submissions,
   onSubmissionClick,
 }: SubmissionsListProps) => {
-  console.log("SubmissionsList received submissions:", submissions); // Add logging
+  // console.log(
+  //   "SubmissionsList received submissions count:",
+  //   submissions.length
+  // ); // Simplified logging
 
   const groupedSubmissions = submissions.reduce((acc, submission) => {
     const creditNumber = submission.credit.number; // Ensure the correct credit number is used
@@ -27,15 +30,11 @@ const SubmissionsList = ({
     return acc;
   }, {} as Record<number, SubmissionsListProps["submissions"]>);
 
-  console.log("Grouped submissions:", groupedSubmissions); // Add logging
-
   const sortedGroupings = Object.entries(groupedSubmissions).sort(
     ([creditA], [creditB]) => {
       return Number(creditA) - Number(creditB); // Sort by credit number
     }
   );
-
-  console.log("Sorted groupings:", sortedGroupings); // Add logging
 
   const totalSubmissions = submissions.length;
   const completeCount = submissions.filter(

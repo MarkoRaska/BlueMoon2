@@ -153,7 +153,7 @@ class SaveFeedbackView(APIView):
     def post(self, request):
         submission_id = request.data.get("submissionId")
         feedback = request.data.get("feedback")
-        print(f"Received feedback for submission {submission_id}: {feedback}")  # Debugging log
+        print(f"Received feedback for submission {submission_id}: \n***\n{feedback}\n***")  # Debugging log
 
         try:
             submission = Submission.objects.get(id=submission_id)
@@ -176,5 +176,41 @@ class SaveFeedbackView(APIView):
             return Response({"detail": "Submission not found."}, status=404)
         except Exception as e:
             print(f"Error saving feedback for submission {submission_id}: {e}")  # Debugging log
+            return Response({"detail": "Internal server error."}, status=500)
+
+class SaveNotesView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [JSONParser]
+
+    def post(self, request):
+        submission_id = request.data.get("submissionId")
+        notes = request.data.get("notes")
+        print(f"Received notes for submission {submission_id}: \n***\n{notes}\n***")  # Debugging log
+
+        if not submission_id:
+            print("No submission ID provided")  # Debugging log
+            return Response({"detail": "Submission ID is required."}, status=400)
+
+        try:
+            submission = Submission.objects.get(id=submission_id)
+            submission.notes = notes
+            submission.save()
+            print(f"Notes saved for submission {submission_id}")  # Debugging log
+
+            # Invalidate or update the cache
+            cache_key = f'assigned_submissions_{submission.reader.profile.user.id}'
+            cached_data = cache.get(cache_key)
+            if cached_data:
+                for cached_submission in cached_data:
+                    if cached_submission['id'] == submission_id:
+                        cached_submission['notes'] = notes
+                cache.set(cache_key, cached_data, timeout=300)
+
+            return Response({"detail": "Notes saved successfully."}, status=200)
+        except Submission.DoesNotExist:
+            print(f"Submission {submission_id} not found")  # Debugging log
+            return Response({"detail": "Submission not found."}, status=404)
+        except Exception as e:
+            print(f"Error saving notes for submission {submission_id}: {e}")  # Debugging log
             return Response({"detail": "Internal server error."}, status=500)
 
