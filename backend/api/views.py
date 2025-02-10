@@ -91,7 +91,7 @@ class ReaderViewSet(viewsets.ModelViewSet):
                 'cycle',
                 'credit',
                 'reader__profile'
-            ).prefetch_related('evidence_set')
+            ).prefetch_related('evidence_set').order_by('credit__number', 'student__profile__last_name')
             print(f"Submissions: {submissions}")
 
             serializer = SubmissionSerializer(submissions, many=True)

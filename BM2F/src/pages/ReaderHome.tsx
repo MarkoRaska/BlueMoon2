@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import SubmissionsList from "../components/SubmissionsList";
 import SubmissionViewer from "../components/SubmissionViewer";
 import Navbar from "../components/Navbar";
@@ -8,6 +8,7 @@ const ReaderHome = () => {
   const { submissions } = useSubmissions();
   console.log("ReaderHome received submissions:", submissions); // Add logging
 
+  const [sortedSubmissions, setSortedSubmissions] = useState(submissions);
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<
     string | null
   >(null);
@@ -15,6 +16,16 @@ const ReaderHome = () => {
     Record<string, string>
   >({});
   const [isSubmissionListOpen, setIsSubmissionListOpen] = useState(true);
+
+  useEffect(() => {
+    const sorted = [...submissions].sort((a, b) => {
+      if (a.credit.number !== b.credit.number) {
+        return a.credit.number - b.credit.number;
+      }
+      return a.student.last_name.localeCompare(b.student.last_name);
+    });
+    setSortedSubmissions(sorted);
+  }, [submissions]);
 
   const handleSubmissionClick = (submissionId: string) => {
     console.log("Submission clicked:", submissionId); // Debugging
@@ -32,7 +43,11 @@ const ReaderHome = () => {
     setIsSubmissionListOpen(!isSubmissionListOpen);
   };
 
-  const selectedSubmissionData = submissions.find(
+  const handleNavigate = (submissionId: string) => {
+    setSelectedSubmissionId(submissionId);
+  };
+
+  const selectedSubmissionData = sortedSubmissions.find(
     (submission) => submission.id === selectedSubmissionId
   );
 
@@ -47,7 +62,7 @@ const ReaderHome = () => {
         {isSubmissionListOpen && (
           <div style={{ maxHeight: "calc(100vh - 70px)", flexShrink: 0 }}>
             <SubmissionsList
-              submissions={submissions}
+              submissions={sortedSubmissions}
               onSubmissionClick={handleSubmissionClick}
             />
           </div>
@@ -63,6 +78,7 @@ const ReaderHome = () => {
               }
               onNotePadChange={handleNotePadChange}
               isSubmissionListOpen={isSubmissionListOpen}
+              onNavigate={handleNavigate} // Pass onNavigate to SubmissionViewer
             />
           ) : (
             <div>Select a submission to view details</div>

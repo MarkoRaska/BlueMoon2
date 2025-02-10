@@ -9,6 +9,7 @@ interface SubmissionViewerProps {
   notePadContent: string;
   onNotePadChange: (student: string, content: string) => void;
   isSubmissionListOpen: boolean; // Add prop to check if submission list is open
+  onNavigate: (submissionId: string) => void; // Add onNavigate prop
 }
 
 const SubmissionViewer = ({
@@ -16,6 +17,7 @@ const SubmissionViewer = ({
   notePadContent,
   onNotePadChange,
   isSubmissionListOpen,
+  onNavigate,
 }: SubmissionViewerProps) => {
   const { submissions, updateSubmission } = useSubmissions(); // Get submissions and updateSubmission from context
   const [feedback, setFeedback] = useState("");
@@ -42,6 +44,24 @@ const SubmissionViewer = ({
     setNotes(notes);
     if (submission) {
       updateSubmission({ ...submission, notes });
+    }
+  };
+
+  const handlePrevious = () => {
+    const currentIndex = submissions.findIndex(
+      (sub) => sub.id === submissionId
+    );
+    if (currentIndex > 0) {
+      onNavigate(submissions[currentIndex - 1].id);
+    }
+  };
+
+  const handleNext = () => {
+    const currentIndex = submissions.findIndex(
+      (sub) => sub.id === submissionId
+    );
+    if (currentIndex < submissions.length - 1) {
+      onNavigate(submissions[currentIndex + 1].id);
     }
   };
 
@@ -91,6 +111,19 @@ const SubmissionViewer = ({
             position: "relative", // Use relative positioning
           }}
         >
+          <button
+            onClick={handlePrevious}
+            style={{
+              position: "absolute",
+              left: "10px",
+              background: "none",
+              border: "none",
+              fontSize: "20px",
+              cursor: "pointer",
+            }}
+          >
+            &larr;
+          </button>
           <div
             style={{
               position: "absolute",
@@ -109,6 +142,19 @@ const SubmissionViewer = ({
           >
             <p style={{ fontSize: "20px", margin: "0" }}>Feedback</p>
           </div>
+          <button
+            onClick={handleNext}
+            style={{
+              position: "absolute",
+              right: "10px",
+              background: "none",
+              border: "none",
+              fontSize: "20px",
+              cursor: "pointer",
+            }}
+          >
+            &rarr;
+          </button>
         </div>
         <div style={{ flexGrow: 1 }}>
           <Feedback
