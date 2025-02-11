@@ -1,7 +1,12 @@
 import axios from "axios";
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL,
+  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000", // Updated to use Vite environment variable
+  timeout: 5000,
+  headers: {
+    "Content-Type": "application/json",
+    accept: "application/json",
+  },
 });
 
 axiosInstance.interceptors.request.use(
@@ -18,28 +23,39 @@ axiosInstance.interceptors.request.use(
 );
 
 axiosInstance.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  async (error) => {
+  (response) => response,
+  (error) => {
     const originalRequest = error.config;
+
+    if (error.response.status === 401 && originalRequest.url === "/api/token/refresh/") {
+      localStorage.clear();
+      window.location.href = "/login"; // Use window.location.href to redirect
+      return Promise.reject(error);
+    }
+
     if (error.response.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
-      try {
-        const refreshToken = localStorage.getItem("refreshToken");
-        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/token/refresh/`, {
-          refresh: refreshToken,
-        });
-        localStorage.setItem("token", response.data.access);
-        axios.defaults.headers.common["Authorization"] = `Bearer ${response.data.access}`;
-        return axiosInstance(originalRequest);
-      } catch (err) {
-        console.error("Token refresh failed", err);
-        localStorage.removeItem("token");
-        localStorage.removeItem("refreshToken");
-        window.location.href = "/login";
+      const refreshToken = localStorage.getItem("refreshToken");
+
+      if (!refreshToken) {
+        window.location.href = "/login"; // Redirect to login if no refresh token
+        return Promise.reject(error);
       }
+
+      return axiosInstance
+        .post("/api/token/refresh/", { refresh: refreshToken })
+        .then((response) => {
+          localStorage.setItem("token", response.data.access);
+          axiosInstance.defaults.headers["Authorization"] = "Bearer " + response.data.access;
+          originalRequest.headers["Authorization"] = "Bearer " + response.data.access;
+          return axiosInstance(originalRequest);
+        })
+        .catch(() => {
+          localStorage.clear();
+          window.location.href = "/login"; // Use window.location.href to redirect
+        });
     }
+
     return Promise.reject(error);
   }
 );

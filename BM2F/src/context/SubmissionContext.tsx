@@ -35,6 +35,11 @@ export const SubmissionProvider: React.FC = ({ children }) => {
 
   useEffect(() => {
     const fetchSubmissions = async () => {
+      const token = localStorage.getItem("token");
+      if (!token) {
+        return; // Exit if no token is found
+      }
+
       try {
         const response = await axiosInstance.get(
           "/api/readers/assigned_submissions/"
