@@ -54,7 +54,7 @@ const CreditGrouping = ({
         boxSizing: "border-box",
         cursor: "pointer",
         flexShrink: 0,
-        backgroundColor: allComplete ? "#b0ffb0" : "white", // darker green for complete
+        backgroundColor: allComplete ? "#b0ffb0" : "white",
       }}
     >
       <div

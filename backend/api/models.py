@@ -16,7 +16,6 @@ class Profile(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        # print("Saving profile:", self)
         super().save(*args, **kwargs)
 
 class Credit(models.Model):
@@ -26,7 +25,6 @@ class Credit(models.Model):
     detailed_description = models.TextField()
 
     def save(self, *args, **kwargs):
-        # print("Saving credit:", self)
         super().save(*args, **kwargs)
 
 class Student(models.Model):
@@ -36,7 +34,6 @@ class Student(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        # print("Saving student:", self)
         super().save(*args, **kwargs)
 
 class Reader(models.Model):
@@ -46,7 +43,6 @@ class Reader(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        # print("Saving reader:", self)
         super().save(*args, **kwargs)
 
 class Cycle(models.Model):
@@ -56,7 +52,6 @@ class Cycle(models.Model):
     current = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
-        # print("Saving cycle:", self)
         super().save(*args, **kwargs)
 
 class Submission(models.Model):
@@ -85,7 +80,6 @@ class Submission(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        # print("Saving submission:", self)
         super().save(*args, **kwargs)
 
 class Evidence(models.Model):
@@ -96,7 +90,6 @@ class Evidence(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):
-        # print("Saving evidence:", self)
         super().save(*args, **kwargs)
 
 class EarnedCredit(models.Model):
@@ -106,7 +99,6 @@ class EarnedCredit(models.Model):
     earned = models.DateTimeField(auto_now_add=True)
 
     def save(self, *args, **kwargs):
-        # print("Saving earned credit:", self)
         super().save(*args, **kwargs)
 
 

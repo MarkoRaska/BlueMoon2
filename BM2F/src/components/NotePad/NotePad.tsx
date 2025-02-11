@@ -1,9 +1,9 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
 import TextEditor from "../TextEditor";
-import axiosInstance from "../../utils/axiosInstance"; // Import axiosInstance for API calls
-import { debounce } from "../../utils/debounce"; // Import debounce function
-import { useSubmissions } from "../../context/SubmissionContext"; // Import useSubmissions hook
-import "./NotePad.css"; // Assuming you have a CSS file for styling
+import axiosInstance from "../../utils/axiosInstance";
+import { debounce } from "../../utils/debounce";
+import { useSubmissions } from "../../context/SubmissionContext";
+import "./NotePad.css";
 
 interface NotePadProps {
   student: string;
@@ -18,35 +18,31 @@ const NotePad = ({
   student,
   submissionId,
 }: NotePadProps) => {
-  const [height, setHeight] = useState(20); // Start fully closed
-  const [previousHeight, setPreviousHeight] = useState(200); // Default expanded height
+  const [height, setHeight] = useState(20);
+  const [previousHeight, setPreviousHeight] = useState(200);
   const containerRef = useRef<HTMLDivElement>(null);
   const [notesState, setNotesState] = useState(content);
-  const { updateSubmission } = useSubmissions(); // Get updateSubmission method from context
+  const { updateSubmission } = useSubmissions();
 
   useEffect(() => {
-    setNotesState(content); // Update notes state when receiving new content
+    setNotesState(content);
   }, [content]);
 
   useEffect(() => {
-    setNotesState(content); // Ensure notes state is updated when submissionId changes
+    setNotesState(content);
   }, [submissionId, content]);
 
   const saveNotes = async (newNotes: string) => {
-    console.log("Saving notes for submission ID:", submissionId); // Debugging log
-    console.log("Notes content:", newNotes); // Debugging log
     try {
       const response = await axiosInstance.post("/api/save_notes/", {
-        submissionId, // Ensure submissionId is used correctly
+        submissionId,
         notes: newNotes,
       });
-      console.log("Notes saved response:", response.data); // Debugging log
       updateSubmission({
         ...response.data,
         id: submissionId,
         notes: newNotes,
-      }); // Update context with new notes
-      console.log("Context updated with new notes:", newNotes); // Debugging log
+      });
     } catch (error) {
       console.error("Failed to save notes", error);
     }
@@ -63,7 +59,7 @@ const NotePad = ({
   };
 
   const handleMouseDown = (e: React.MouseEvent) => {
-    e.preventDefault(); // Prevent text selection
+    e.preventDefault();
     const startY = e.clientY;
     const startHeight = containerRef.current?.offsetHeight || 20;
 
@@ -75,7 +71,7 @@ const NotePad = ({
       setHeight(finalHeight);
       window.dispatchEvent(
         new CustomEvent("notepadHeightChange", { detail: finalHeight })
-      ); // Emit custom event
+      );
     };
 
     const onMouseUp = () => {
@@ -91,15 +87,15 @@ const NotePad = ({
     if (e.altKey && e.key === "n") {
       if (height > 20) {
         setPreviousHeight(height);
-        setHeight(20); // Collapse to minimum height with buffer
+        setHeight(20);
         window.dispatchEvent(
           new CustomEvent("notepadHeightChange", { detail: 20 })
-        ); // Emit custom event
+        );
       } else {
-        setHeight(previousHeight); // Expand to previous height
+        setHeight(previousHeight);
         window.dispatchEvent(
           new CustomEvent("notepadHeightChange", { detail: previousHeight })
-        ); // Emit custom event
+        );
       }
     }
   };
@@ -124,7 +120,7 @@ const NotePad = ({
         <TextEditor
           value={notesState}
           onChange={handleNotesChange}
-          isNotePad={true} // Specify that this is a NotePad text field
+          isNotePad={true}
         />
       </div>
     </div>

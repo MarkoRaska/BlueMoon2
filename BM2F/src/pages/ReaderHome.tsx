@@ -6,7 +6,6 @@ import { useSubmissions } from "../context/SubmissionContext";
 
 const ReaderHome = () => {
   const { submissions } = useSubmissions();
-  console.log("ReaderHome received submissions:", submissions); // Add logging
 
   const [sortedSubmissions, setSortedSubmissions] = useState(submissions);
   const [selectedSubmissionId, setSelectedSubmissionId] = useState<
@@ -28,7 +27,6 @@ const ReaderHome = () => {
   }, [submissions]);
 
   const handleSubmissionClick = (submissionId: string) => {
-    console.log("Submission clicked:", submissionId); // Debugging
     setSelectedSubmissionId(submissionId);
   };
 
@@ -51,10 +49,6 @@ const ReaderHome = () => {
     (submission) => submission.id === selectedSubmissionId
   );
 
-  if (selectedSubmissionData) {
-    console.log("Selected submission data:", selectedSubmissionData); // Debugging
-  }
-
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
       <Navbar onIconClick={handleIconClick} />
@@ -70,7 +64,7 @@ const ReaderHome = () => {
         <div style={{ flexGrow: 1, height: "calc(100vh - 70px)" }}>
           {selectedSubmissionData ? (
             <SubmissionViewer
-              submissionId={selectedSubmissionId} // Pass submissionId to SubmissionViewer
+              submissionId={selectedSubmissionId}
               notePadContent={
                 notePadContents[
                   `${selectedSubmissionData.student.first_name} ${selectedSubmissionData.student.last_name}`
@@ -78,7 +72,7 @@ const ReaderHome = () => {
               }
               onNotePadChange={handleNotePadChange}
               isSubmissionListOpen={isSubmissionListOpen}
-              onNavigate={handleNavigate} // Pass onNavigate to SubmissionViewer
+              onNavigate={handleNavigate}
             />
           ) : (
             <div>Select a submission to view details</div>

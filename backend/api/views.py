@@ -70,19 +70,11 @@ class ReaderViewSet(viewsets.ModelViewSet):
     def assigned_submissions(self, request):
         cache_key = f'assigned_submissions_{request.user.id}'
         if cached := cache.get(cache_key):
-            print("Sending cached data:", cached)
             return Response(cached)
         
         try:
-            print("Fetching current cycle")
             current_cycle = Cycle.objects.get(current=True)
-            print(f"Current cycle: {current_cycle}")
-
-            print("Fetching reader")
             reader = Reader.objects.select_related('profile').prefetch_related('comfortable_credits').get(profile__user=request.user)
-            print(f"Reader: {reader}")
-
-            print("Fetching submissions")
             submissions = Submission.objects.filter(
                 reader=reader, 
                 cycle=current_cycle
@@ -92,22 +84,16 @@ class ReaderViewSet(viewsets.ModelViewSet):
                 'credit',
                 'reader__profile'
             ).prefetch_related('evidence_set').order_by('credit__number', 'student__profile__last_name')
-            print(f"Submissions: {submissions}")
-
             serializer = SubmissionSerializer(submissions, many=True)
             response_data = serializer.data
-            print("Sending data:", response_data)
             cache.set(cache_key, response_data, timeout=300)
             return Response(response_data)
         
         except Cycle.DoesNotExist:
-            print("No current cycle found")
             return JsonResponse({"detail": "No current cycle found."}, status=404)
         except Reader.DoesNotExist:
-            print("Reader not found")
             return JsonResponse({"detail": "Reader not found."}, status=404)
         except Exception as e:
-            print(f"Error fetching assigned submissions: {e}")
             return JsonResponse({"detail": "Internal server error."}, status=500)
 
 class CycleViewSet(viewsets.ModelViewSet):
@@ -153,15 +139,12 @@ class SaveFeedbackView(APIView):
     def post(self, request):
         submission_id = request.data.get("submissionId")
         feedback = request.data.get("feedback")
-        print(f"Received feedback for submission {submission_id}: \n***\n{feedback}\n***")  # Debugging log
 
         try:
             submission = Submission.objects.get(id=submission_id)
             submission.feedback = feedback
             submission.save()
-            print(f"Feedback saved for submission {submission_id}")  # Debugging log
 
-            # Invalidate or update the cache
             cache_key = f'assigned_submissions_{submission.reader.profile.user.id}'
             cached_data = cache.get(cache_key)
             if cached_data:
@@ -172,10 +155,8 @@ class SaveFeedbackView(APIView):
 
             return Response({"detail": "Feedback saved successfully."}, status=200)
         except Submission.DoesNotExist:
-            print(f"Submission {submission_id} not found")  # Debugging log
             return Response({"detail": "Submission not found."}, status=404)
         except Exception as e:
-            print(f"Error saving feedback for submission {submission_id}: {e}")  # Debugging log
             return Response({"detail": "Internal server error."}, status=500)
 
 class SaveNotesView(APIView):
@@ -185,19 +166,15 @@ class SaveNotesView(APIView):
     def post(self, request):
         submission_id = request.data.get("submissionId")
         notes = request.data.get("notes")
-        print(f"Received notes for submission {submission_id}: \n***\n{notes}\n***")  # Debugging log
 
         if not submission_id:
-            print("No submission ID provided")  # Debugging log
             return Response({"detail": "Submission ID is required."}, status=400)
 
         try:
             submission = Submission.objects.get(id=submission_id)
             submission.notes = notes
             submission.save()
-            print(f"Notes saved for submission {submission_id}")  # Debugging log
 
-            # Invalidate or update the cache
             cache_key = f'assigned_submissions_{submission.reader.profile.user.id}'
             cached_data = cache.get(cache_key)
             if cached_data:
@@ -208,9 +185,37 @@ class SaveNotesView(APIView):
 
             return Response({"detail": "Notes saved successfully."}, status=200)
         except Submission.DoesNotExist:
-            print(f"Submission {submission_id} not found")  # Debugging log
             return Response({"detail": "Submission not found."}, status=404)
         except Exception as e:
-            print(f"Error saving notes for submission {submission_id}: {e}")  # Debugging log
+            return Response({"detail": "Internal server error."}, status=500)
+
+class SaveDecisionView(APIView):
+    permission_classes = [IsAuthenticated]
+    parser_classes = [JSONParser]
+
+    def post(self, request):
+        submission_id = request.data.get("submissionId")
+        decision = request.data.get("decision")
+
+        if not submission_id:
+            return Response({"detail": "Submission ID is required."}, status=400)
+
+        try:
+            submission = Submission.objects.get(id=submission_id)
+            submission.decision = decision
+            submission.save()
+
+            cache_key = f'assigned_submissions_{submission.reader.profile.user.id}'
+            cached_data = cache.get(cache_key)
+            if cached_data:
+                for cached_submission in cached_data:
+                    if cached_submission['id'] == submission_id:
+                        cached_submission['decision'] = decision
+                cache.set(cache_key, cached_data, timeout=300)
+
+            return Response({"detail": "Decision saved successfully."}, status=200)
+        except Submission.DoesNotExist:
+            return Response({"detail": "Submission not found."}, status=404)
+        except Exception as e:
             return Response({"detail": "Internal server error."}, status=500)
 

@@ -1,6 +1,6 @@
 import CreditGrouping from "../CreditGrouping";
-import MultiProgress from "react-multi-progress"; // Import the MultiProgress component
-import "./SubmissionsList.css"; // Import CSS for styling
+import MultiProgress from "react-multi-progress";
+import "./SubmissionsList.css";
 
 interface SubmissionsListProps {
   submissions: {
@@ -16,13 +16,8 @@ const SubmissionsList = ({
   submissions,
   onSubmissionClick,
 }: SubmissionsListProps) => {
-  // console.log(
-  //   "SubmissionsList received submissions count:",
-  //   submissions.length
-  // ); // Simplified logging
-
   const groupedSubmissions = submissions.reduce((acc, submission) => {
-    const creditNumber = submission.credit.number; // Ensure the correct credit number is used
+    const creditNumber = submission.credit.number;
     if (!acc[creditNumber]) {
       acc[creditNumber] = [];
     }
@@ -32,7 +27,7 @@ const SubmissionsList = ({
 
   const sortedGroupings = Object.entries(groupedSubmissions).sort(
     ([creditA], [creditB]) => {
-      return Number(creditA) - Number(creditB); // Sort by credit number
+      return Number(creditA) - Number(creditB);
     }
   );
 
@@ -52,8 +47,8 @@ const SubmissionsList = ({
   const unreviewedPercentage = (unreviewedCount / totalSubmissions) * 100;
 
   const progressBarElements = [
-    { value: completePercentage, color: "#32CD32" }, // Vibrant light green
-    { value: inProgressPercentage, color: "#FFD700" }, // Vibrant yellow
+    { value: completePercentage, color: "#32CD32" },
+    { value: inProgressPercentage, color: "#FFD700" },
     { value: unreviewedPercentage, color: "white" },
   ];
 
@@ -62,10 +57,10 @@ const SubmissionsList = ({
       className="submissions-list"
       style={{
         border: "3px solid black",
-        padding: "0", // Remove padding to ensure edges are flush
+        padding: "0",
         margin: "0",
-        height: "100%", // Ensure the component takes up the full height of its parent
-        flexGrow: 1, // Allow the component to grow and fill the available space
+        height: "100%",
+        flexGrow: 1,
         overflowY: "scroll",
         display: "flex",
         flexDirection: "column",
@@ -81,17 +76,17 @@ const SubmissionsList = ({
         style={{
           width: "100%",
           backgroundColor: "lightgray",
-          textAlign: "left", // Align text to the left
-          padding: "10px 10px", // Adjust padding to move text to the top left
+          textAlign: "left",
+          padding: "10px 10px",
           borderBottom: "3px solid black",
           position: "sticky",
-          top: 0, // Ensure it sticks to the top
-          left: 0, // Ensure it sticks to the left
-          right: 0, // Ensure it sticks to the right
+          top: 0,
+          left: 0,
+          right: 0,
           zIndex: 1,
           boxSizing: "border-box",
-          height: "90px", // Increase height to accommodate progress bar
-          flexShrink: 0, // Prevent the rectangle from shrinking
+          height: "90px",
+          flexShrink: 0,
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
@@ -99,7 +94,7 @@ const SubmissionsList = ({
       >
         <div>Submissions List</div>
         <MultiProgress
-          className="multi-progress-bar" // Add class for styling
+          className="multi-progress-bar"
           elements={progressBarElements}
           height={20}
         />
@@ -107,16 +102,16 @@ const SubmissionsList = ({
       <style>
         {`
           .submissions-list::-webkit-scrollbar {
-            display: none; /* For Chrome, Safari, and Opera */
+            display: none;
           }
         `}
       </style>
       {sortedGroupings.map(([credit, submissions]) => (
         <CreditGrouping
           key={credit}
-          credit={submissions[0].credit} // Ensure the correct credit object is passed
+          credit={submissions[0].credit}
           submissions={submissions.sort((a, b) => {
-            return a.student.last_name.localeCompare(b.student.last_name); // Sort by student's last name
+            return a.student.last_name.localeCompare(b.student.last_name);
           })}
           onSubmissionClick={onSubmissionClick}
         />

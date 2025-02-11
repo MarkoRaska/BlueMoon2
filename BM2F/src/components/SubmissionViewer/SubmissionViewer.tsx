@@ -1,15 +1,15 @@
 import { useEffect, useState } from "react";
 import Feedback from "../Feedback";
 import NotePad from "../NotePad";
-import { useSubmissions } from "../../context/SubmissionContext"; // Import useSubmissions hook
+import { useSubmissions } from "../../context/SubmissionContext";
 import "./SubmissionViewer.css";
 
 interface SubmissionViewerProps {
-  submissionId: string | null; // Change to submissionId
+  submissionId: string | null;
   notePadContent: string;
   onNotePadChange: (student: string, content: string) => void;
-  isSubmissionListOpen: boolean; // Add prop to check if submission list is open
-  onNavigate: (submissionId: string) => void; // Add onNavigate prop
+  isSubmissionListOpen: boolean;
+  onNavigate: (submissionId: string) => void;
 }
 
 const SubmissionViewer = ({
@@ -19,7 +19,7 @@ const SubmissionViewer = ({
   isSubmissionListOpen,
   onNavigate,
 }: SubmissionViewerProps) => {
-  const { submissions, updateSubmission } = useSubmissions(); // Get submissions and updateSubmission from context
+  const { submissions, updateSubmission } = useSubmissions();
   const [feedback, setFeedback] = useState("");
   const [notes, setNotes] = useState("");
 
@@ -28,9 +28,8 @@ const SubmissionViewer = ({
   );
 
   useEffect(() => {
-    console.log("SubmissionViewer received submission:", submission?.id); // Simplified logging
     setFeedback(submission ? submission.feedback : "");
-    setNotes(submission ? submission.notes : ""); // Set notes state
+    setNotes(submission ? submission.notes : "");
   }, [submissionId]);
 
   const handleFeedbackChange = (feedback: string) => {
@@ -108,7 +107,7 @@ const SubmissionViewer = ({
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
-            position: "relative", // Use relative positioning
+            position: "relative",
           }}
         >
           <button
@@ -127,7 +126,7 @@ const SubmissionViewer = ({
           <div
             style={{
               position: "absolute",
-              left: "25%", // Center in the first half
+              left: "25%",
               transform: "translateX(-50%)",
             }}
           >
@@ -136,7 +135,7 @@ const SubmissionViewer = ({
           <div
             style={{
               position: "absolute",
-              right: "25%", // Center in the second half
+              right: "25%",
               transform: "translateX(50%)",
             }}
           >
@@ -162,19 +161,19 @@ const SubmissionViewer = ({
             onFeedbackChange={handleFeedbackChange}
             student={`${submission.student.first_name} ${submission.student.last_name}`}
             credit={submission.credit.number}
-            submissionId={submission.id} // Ensure submissionId is passed correctly
+            submissionId={submission.id}
           />
         </div>
         <NotePad
           student={`${submission.student.first_name} ${submission.student.last_name}`}
-          content={notes} // Pass notes state to NotePad
+          content={notes}
           onContentChange={(content) =>
             onNotePadChange(
               `${submission.student.first_name} ${submission.student.last_name}`,
               content
             )
           }
-          submissionId={submission.id} // Ensure submissionId is passed correctly
+          submissionId={submission.id}
         />
       </div>
     </div>

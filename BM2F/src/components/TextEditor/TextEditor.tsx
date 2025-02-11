@@ -21,7 +21,6 @@ const TextEditor = ({
 
   const editorRef = useRef<Editor>(null);
 
-  // Synchronize editor state with value prop
   useEffect(() => {
     const currentContent = editorState.getCurrentContent().getPlainText();
     if (currentContent !== value) {

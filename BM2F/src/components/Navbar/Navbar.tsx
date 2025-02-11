@@ -1,4 +1,4 @@
-import { FaBars } from "react-icons/fa"; // Import the Pancake Stack icon
+import { FaBars } from "react-icons/fa";
 
 const Navbar = ({ onIconClick }: { onIconClick: () => void }) => {
   return (
@@ -9,14 +9,14 @@ const Navbar = ({ onIconClick }: { onIconClick: () => void }) => {
         display: "flex",
         alignItems: "center",
         padding: "0 20px",
-        userSelect: "none", // Prevent text selection
+        userSelect: "none",
       }}
     >
       <FaBars
         size={35}
-        style={{ marginRight: "20px", cursor: "pointer" }} // Change cursor to pointer on hover
+        style={{ marginRight: "20px", cursor: "pointer" }}
         onClick={onIconClick}
-      />{" "}
+      />
       <h1>Navbar</h1>
     </div>
   );

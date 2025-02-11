@@ -1,41 +1,68 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaQuestionCircle,
   FaCheckCircle,
   FaTimesCircle,
   FaEllipsisH,
 } from "react-icons/fa";
-import "./Submission.css"; // Import CSS for styling
+import "./Submission.css";
 
 interface SubmissionProps {
+  id: string;
   credit: string;
   student: { first_name: string; last_name: string };
-  current_decision: "Undecided" | "TBD" | "Earned" | "Not Earned";
+  decision: "UN" | "TB" | "EA" | "NE";
   state: string;
   onClick: () => void;
 }
 
 const decisionIcons = {
-  Undecided: <FaQuestionCircle color="grey" size={24} />,
-  TBD: <FaEllipsisH color="darkgoldenrod" size={24} />,
-  Earned: <FaCheckCircle color="green" size={24} />,
-  "Not Earned": <FaTimesCircle color="red" size={24} />,
+  UN: <FaQuestionCircle color="grey" size={24} />,
+  TB: <FaEllipsisH color="darkgoldenrod" size={24} />,
+  EA: <FaCheckCircle color="green" size={24} />,
+  NE: <FaTimesCircle color="red" size={24} />,
 };
 
 const stateColors = {
-  Unreviewed: "#ffffff", // white
-  "In Progress": "#fffacd", // darker yellow
-  Complete: "#d0ffd0", // darker green
+  Unreviewed: "#ffffff",
+  "In Progress": "#fffacd",
+  Complete: "#d0ffd0",
 };
 
 const Submission = ({
+  id,
   credit,
   student,
-  current_decision,
+  decision,
   state,
   onClick,
 }: SubmissionProps) => {
+  const [currentDecision, setCurrentDecision] = useState(decision);
   const fullName = `${student.first_name} ${student.last_name}`;
+
+  useEffect(() => {
+    setCurrentDecision(decision);
+  }, [decision]);
+
+  useEffect(() => {
+    const handleDecisionChange = (e: CustomEvent) => {
+      if (e.detail.submissionId === id) {
+        setCurrentDecision(e.detail.newDecision);
+      }
+    };
+
+    window.addEventListener(
+      "decisionChange",
+      handleDecisionChange as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "decisionChange",
+        handleDecisionChange as EventListener
+      );
+    };
+  }, [id]);
 
   return (
     <div
@@ -59,7 +86,7 @@ const Submission = ({
         {fullName}
       </p>
       <div style={{ fontSize: "24px" }}>
-        {decisionIcons[current_decision] || (
+        {decisionIcons[currentDecision] || (
           <FaQuestionCircle color="grey" size={24} />
         )}
       </div>

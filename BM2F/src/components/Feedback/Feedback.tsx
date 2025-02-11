@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useCallback } from "react";
 import TextEditor from "../TextEditor";
-import axiosInstance from "../../utils/axiosInstance"; // Import axiosInstance for API calls
-import { debounce } from "../../utils/debounce"; // Import debounce function
-import { useSubmissions } from "../../context/SubmissionContext"; // Import useSubmissions hook
+import axiosInstance from "../../utils/axiosInstance";
+import { debounce } from "../../utils/debounce";
+import { useSubmissions } from "../../context/SubmissionContext";
 import "./Feedback.css";
 
 interface FeedbackProps {
@@ -10,7 +10,7 @@ interface FeedbackProps {
   onFeedbackChange: (feedback: string) => void;
   student: string;
   credit: number;
-  submissionId: string; // Add submissionId prop
+  submissionId: string;
 }
 
 const Feedback = ({
@@ -18,11 +18,11 @@ const Feedback = ({
   onFeedbackChange,
   student,
   credit,
-  submissionId, // Add submissionId prop
+  submissionId,
 }: FeedbackProps) => {
   const [, setLeftOffset] = useState(0);
   const [bottomOffset, setBottomOffset] = useState(0);
-  const { updateSubmission } = useSubmissions(); // Get updateSubmission method from context
+  const { updateSubmission } = useSubmissions();
 
   useEffect(() => {
     const updateOffsets = () => {
@@ -30,12 +30,12 @@ const Feedback = ({
       const notepadHandle = document.querySelector(".notepad-handle");
       if (submissionsList && notepadHandle) {
         const submissionsRect = submissionsList.getBoundingClientRect();
-        setLeftOffset(submissionsRect.right); // Exclude border width
+        setLeftOffset(submissionsRect.right);
       }
     };
 
     const handleNotepadHeightChange = (e: CustomEvent) => {
-      setBottomOffset(e.detail); // Update bottom offset based on notepad height
+      setBottomOffset(e.detail);
     };
 
     updateOffsets();
@@ -43,43 +43,37 @@ const Feedback = ({
     window.addEventListener(
       "notepadHeightChange",
       handleNotepadHeightChange as EventListener
-    ); // Listen for custom event
+    );
     return () => {
       window.removeEventListener("resize", updateOffsets);
       window.removeEventListener(
         "notepadHeightChange",
         handleNotepadHeightChange as EventListener
-      ); // Clean up event listener
+      );
     };
   }, []);
 
   const [feedbackState, setFeedbackState] = useState(feedback);
 
   useEffect(() => {
-    console.log("Feedback component received new feedback:", feedback); // Debugging log
-    setFeedbackState(feedback); // Update feedback state when receiving new feedback
+    setFeedbackState(feedback);
   }, [feedback]);
 
   useEffect(() => {
-    console.log("Feedback component submissionId changed:", submissionId); // Debugging log
-    setFeedbackState(feedback); // Ensure feedback state is updated when submissionId changes
+    setFeedbackState(feedback);
   }, [submissionId, feedback]);
 
   const saveFeedback = async (newFeedback: string) => {
-    console.log("Saving feedback for submission ID:", submissionId); // Debugging log
-    console.log("Feedback content:", newFeedback); // Debugging log
     try {
       const response = await axiosInstance.post("/api/save_feedback/", {
-        submissionId, // Ensure submissionId is used correctly
+        submissionId,
         feedback: newFeedback,
       });
-      console.log("Feedback saved response:", response.data); // Debugging log
       updateSubmission({
         ...response.data,
         id: submissionId,
         feedback: newFeedback,
-      }); // Update context with new feedback
-      console.log("Context updated with new feedback:", newFeedback); // Debugging log
+      });
     } catch (error) {
       console.error("Failed to save feedback", error);
     }
@@ -99,13 +93,13 @@ const Feedback = ({
     <div
       className="feedback-container"
       style={{
-        border: "none", // Ensure there are no borders causing the issue
+        border: "none",
         padding: "10px",
         boxSizing: "border-box",
         backgroundColor: "white",
         zIndex: 1000,
-        overflowY: "auto", // Make the frame scrollable if content doesn't fit
-        bottom: `${bottomOffset}px`, // Dynamically set bottom offset
+        overflowY: "auto",
+        bottom: `${bottomOffset}px`,
       }}
     >
       <h2>

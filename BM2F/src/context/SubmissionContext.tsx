@@ -8,14 +8,14 @@ interface Submission {
   current_decision: "Undecided" | "TBD" | "Earned" | "Not Earned";
   state: "Unreviewed" | "In Progress" | "Complete";
   rationale: string;
-  feedback: string; // Add feedback field
-  notes: string; // Add notes field
+  feedback: string;
+  notes: string;
 }
 
 interface SubmissionContextProps {
   submissions: Submission[];
   setSubmissions: React.Dispatch<React.SetStateAction<Submission[]>>;
-  updateSubmission: (updatedSubmission: Submission) => void; // Add updateSubmission method
+  updateSubmission: (updatedSubmission: Submission) => void;
 }
 
 const SubmissionContext = createContext<SubmissionContextProps | undefined>(
@@ -40,7 +40,6 @@ export const SubmissionProvider: React.FC = ({ children }) => {
           "/api/readers/assigned_submissions/"
         );
         setSubmissions(response.data);
-        console.log("Fetched submissions count:", response.data.length); // Simplified logging
       } catch (error) {
         console.error("Failed to fetch submissions", error);
       }
@@ -50,14 +49,12 @@ export const SubmissionProvider: React.FC = ({ children }) => {
   }, []);
 
   const updateSubmission = (updatedSubmission: Submission) => {
-    console.log("Updating submission with ID:", updatedSubmission.id); // Debugging log
     setSubmissions((prevSubmissions) => {
       const updatedSubmissions = prevSubmissions.map((submission) =>
         submission.id === updatedSubmission.id
           ? { ...submission, ...updatedSubmission }
           : submission
       );
-      console.log("Updated submissions count:", updatedSubmissions.length); // Simplified logging
       return updatedSubmissions;
     });
   };
