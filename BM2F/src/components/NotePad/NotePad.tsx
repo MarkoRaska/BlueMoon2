@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import TextEditor from "../TextEditor";
 import axiosInstance from "../../utils/axiosInstance";
 import { debounce } from "../../utils/debounce";
 import { useSubmissions } from "../../context/SubmissionContext";
+import { Input } from "antd";
 import "./NotePad.css";
 
 interface NotePadProps {
@@ -117,10 +117,10 @@ const NotePad = ({
         <span className="notepad-icon">⇕</span>
       </div>
       <div className="notepad-content">
-        <TextEditor
+        <Input.TextArea
           value={notesState}
-          onChange={handleNotesChange}
-          isNotePad={true}
+          onChange={(e) => handleNotesChange(e.target.value)}
+          autoSize={{ minRows: 3, maxRows: 10 }}
         />
       </div>
     </div>

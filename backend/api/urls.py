@@ -20,4 +20,5 @@ urlpatterns = [
     path('token/', views.CustomAuthToken.as_view(), name='token_obtain_pair'),
     path('save_feedback/', views.SaveFeedbackView.as_view(), name='save_feedback'),
     path('save_notes/', views.SaveNotesView.as_view(), name='save_notes'),  # Ensure this path is correctly defined
+    path('save_decision/', views.SaveDecisionView.as_view(), name='save_decision'),
 ]

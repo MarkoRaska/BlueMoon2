@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import TextEditor from "../TextEditor";
+import { Input, Select } from "antd";
 import axiosInstance from "../../utils/axiosInstance";
 import { debounce } from "../../utils/debounce";
 import { useSubmissions } from "../../context/SubmissionContext";
@@ -22,7 +22,8 @@ const Feedback = ({
 }: FeedbackProps) => {
   const [, setLeftOffset] = useState(0);
   const [bottomOffset, setBottomOffset] = useState(0);
-  const { updateSubmission } = useSubmissions();
+  const { submissions, updateSubmission } = useSubmissions();
+  const [decision, setDecision] = useState("TB");
 
   useEffect(() => {
     const updateOffsets = () => {
@@ -61,7 +62,11 @@ const Feedback = ({
 
   useEffect(() => {
     setFeedbackState(feedback);
-  }, [submissionId, feedback]);
+    const submission = submissions.find((sub) => sub.id === submissionId);
+    if (submission) {
+      setDecision(submission.decision);
+    }
+  }, [submissionId, feedback, submissions]);
 
   const saveFeedback = async (newFeedback: string) => {
     try {
@@ -89,6 +94,22 @@ const Feedback = ({
     debouncedSaveFeedback(newFeedback);
   };
 
+  const saveDecision = async (newDecision: string) => {
+    try {
+      await axiosInstance.post("/api/save_decision/", {
+        submissionId,
+        decision: newDecision,
+      });
+      setDecision(newDecision);
+      updateSubmission({
+        id: submissionId,
+        decision: newDecision,
+      });
+    } catch (error) {
+      console.error("Failed to save decision", error);
+    }
+  };
+
   return (
     <div
       className="feedback-container"
@@ -102,10 +123,22 @@ const Feedback = ({
         bottom: `${bottomOffset}px`,
       }}
     >
-      <h2>
-        Feedback for {student} (Credit: {credit})
-      </h2>
-      <TextEditor value={feedbackState} onChange={handleFeedbackChange} />
+      <h2>{student}</h2>
+      <h3>Credit: {credit}</h3>
+      <Select
+        value={decision}
+        onChange={(value) => saveDecision(value)}
+        style={{ width: 200, marginBottom: 10 }}
+      >
+        <Select.Option value="TB">TBD</Select.Option>
+        <Select.Option value="EA">Earned</Select.Option>
+        <Select.Option value="NE">Not Earned</Select.Option>
+      </Select>
+      <Input.TextArea
+        value={feedbackState}
+        onChange={(e) => handleFeedbackChange(e.target.value)}
+        autoSize={{ minRows: 3, maxRows: 10 }}
+      />
     </div>
   );
 };
