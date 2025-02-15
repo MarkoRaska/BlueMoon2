@@ -1,24 +1,19 @@
 import React, { useEffect, useState } from "react";
-import {
-  FaQuestionCircle,
-  FaCheckCircle,
-  FaTimesCircle,
-  FaEllipsisH,
-} from "react-icons/fa";
+import { FaQuestionCircle, FaCheckCircle, FaTimesCircle } from "react-icons/fa";
+import { useSubmissions } from "../../context/SubmissionContext";
 import "./Submission.css";
 
 interface SubmissionProps {
   id: string;
   credit: string;
   student: { first_name: string; last_name: string };
-  decision: "UN" | "TB" | "EA" | "NE";
+  decision: "TB" | "EA" | "NE";
   state: string;
   onClick: () => void;
 }
 
 const decisionIcons = {
-  UN: <FaQuestionCircle color="grey" size={24} />,
-  TB: <FaEllipsisH color="darkgoldenrod" size={24} />,
+  TB: <FaQuestionCircle color="darkgoldenrod" size={24} />,
   EA: <FaCheckCircle color="green" size={24} />,
   NE: <FaTimesCircle color="red" size={24} />,
 };
@@ -37,12 +32,16 @@ const Submission = ({
   state,
   onClick,
 }: SubmissionProps) => {
+  const { submissions } = useSubmissions();
   const [currentDecision, setCurrentDecision] = useState(decision);
   const fullName = `${student.first_name} ${student.last_name}`;
 
   useEffect(() => {
-    setCurrentDecision(decision);
-  }, [decision]);
+    const submission = submissions.find((sub) => sub.id === id);
+    if (submission) {
+      setCurrentDecision(submission.decision);
+    }
+  }, [id, submissions]);
 
   useEffect(() => {
     const handleDecisionChange = (e: CustomEvent) => {
@@ -85,11 +84,7 @@ const Submission = ({
       <p className="submission-name" style={{ flex: 1 }}>
         {fullName}
       </p>
-      <div style={{ fontSize: "24px" }}>
-        {decisionIcons[currentDecision] || (
-          <FaQuestionCircle color="grey" size={24} />
-        )}
-      </div>
+      <div style={{ fontSize: "24px" }}>{decisionIcons[currentDecision]}</div>
     </div>
   );
 };

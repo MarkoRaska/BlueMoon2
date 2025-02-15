@@ -10,7 +10,7 @@ interface Submission {
   id: string;
   credit: Credit;
   student: { first_name: string; last_name: string };
-  current_decision: "Undecided" | "TBD" | "Earned" | "Not Earned";
+  decision: "TB" | "EA" | "NE";
   state: "Unreviewed" | "In Progress" | "Complete";
 }
 
@@ -90,9 +90,10 @@ const CreditGrouping = ({
               }}
             >
               <Submission
+                id={submission.id}
                 credit={submission.credit.number.toString()}
                 student={submission.student}
-                current_decision={submission.current_decision}
+                decision={submission.decision}
                 state={submission.state}
                 onClick={() => onSubmissionClick(submission.id)}
               />
