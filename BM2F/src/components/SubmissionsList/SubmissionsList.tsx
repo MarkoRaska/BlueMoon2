@@ -4,10 +4,10 @@ import "./SubmissionsList.css";
 
 interface SubmissionsListProps {
   submissions: {
-    credit: number;
-    student: string;
+    credit: { number: number };
+    student: { first_name: string; last_name: string };
     current_decision: "Undecided" | "TBD" | "Earned" | "Not Earned";
-    state: "Unreviewed" | "In Progress" | "Complete";
+    status: "UN" | "RE" | "CO";
   }[];
   onSubmissionClick: (student: string) => void;
 }
@@ -32,14 +32,12 @@ const SubmissionsList = ({
   );
 
   const totalSubmissions = submissions.length;
-  const completeCount = submissions.filter(
-    (sub) => sub.state === "Complete"
-  ).length;
+  const completeCount = submissions.filter((sub) => sub.status === "CO").length;
   const inProgressCount = submissions.filter(
-    (sub) => sub.state === "In Progress"
+    (sub) => sub.status === "RE"
   ).length;
   const unreviewedCount = submissions.filter(
-    (sub) => sub.state === "Unreviewed"
+    (sub) => sub.status === "UN"
   ).length;
 
   const completePercentage = (completeCount / totalSubmissions) * 100;
@@ -49,7 +47,7 @@ const SubmissionsList = ({
   const progressBarElements = [
     { value: completePercentage, color: "#32CD32" },
     { value: inProgressPercentage, color: "#FFD700" },
-    { value: unreviewedPercentage, color: "white" },
+    { value: unreviewedPercentage, color: "#FFFFFF" },
   ];
 
   return (

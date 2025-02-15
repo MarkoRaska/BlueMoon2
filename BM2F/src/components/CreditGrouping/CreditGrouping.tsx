@@ -11,7 +11,7 @@ interface Submission {
   credit: Credit;
   student: { first_name: string; last_name: string };
   decision: "TB" | "EA" | "NE";
-  state: "Unreviewed" | "In Progress" | "Complete";
+  status: "Unreviewed" | "In Progress" | "Complete";
 }
 
 interface CreditGroupingProps {
@@ -36,7 +36,7 @@ const CreditGrouping = ({
   };
 
   const allComplete = submissions.every(
-    (submission) => submission.state === "Complete"
+    (submission) => submission.status === "Complete"
   );
 
   return (
@@ -94,7 +94,7 @@ const CreditGrouping = ({
                 credit={submission.credit.number.toString()}
                 student={submission.student}
                 decision={submission.decision}
-                state={submission.state}
+                status={submission.status}
                 onClick={() => onSubmissionClick(submission.id)}
               />
             </div>

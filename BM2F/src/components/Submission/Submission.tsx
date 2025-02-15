@@ -8,7 +8,7 @@ interface SubmissionProps {
   credit: string;
   student: { first_name: string; last_name: string };
   decision: "TB" | "EA" | "NE";
-  state: string;
+  status: string;
   onClick: () => void;
 }
 
@@ -18,10 +18,10 @@ const decisionIcons = {
   NE: <FaTimesCircle color="red" size={24} />,
 };
 
-const stateColors = {
-  Unreviewed: "#ffffff",
-  "In Progress": "#fffacd",
-  Complete: "#d0ffd0",
+const statusColors = {
+  UN: "#ffffff", // Unreviewed
+  RE: "#fffacd", // In Progress
+  CO: "#d0ffd0", // Complete
 };
 
 const Submission = ({
@@ -29,17 +29,19 @@ const Submission = ({
   credit,
   student,
   decision,
-  state,
+  status,
   onClick,
 }: SubmissionProps) => {
   const { submissions } = useSubmissions();
   const [currentDecision, setCurrentDecision] = useState(decision);
+  const [currentStatus, setCurrentStatus] = useState(status);
   const fullName = `${student.first_name} ${student.last_name}`;
 
   useEffect(() => {
     const submission = submissions.find((sub) => sub.id === id);
     if (submission) {
       setCurrentDecision(submission.decision);
+      setCurrentStatus(submission.status);
     }
   }, [id, submissions]);
 
@@ -63,6 +65,30 @@ const Submission = ({
     };
   }, [id]);
 
+  useEffect(() => {
+    const handleStatusChange = (e: CustomEvent) => {
+      if (e.detail.submissionId === id) {
+        setCurrentStatus(e.detail.newStatus);
+      }
+    };
+
+    window.addEventListener(
+      "statusChange",
+      handleStatusChange as EventListener
+    );
+
+    return () => {
+      window.removeEventListener(
+        "statusChange",
+        handleStatusChange as EventListener
+      );
+    };
+  }, [id]);
+
+  useEffect(() => {
+    console.log(`Student: ${fullName}, Status: ${currentStatus}`);
+  }, [fullName, currentStatus]);
+
   return (
     <div
       onClick={onClick}
@@ -76,7 +102,7 @@ const Submission = ({
         borderRadius: "10px",
         justifyContent: "space-between",
         alignItems: "center",
-        backgroundColor: stateColors[state],
+        backgroundColor: statusColors[currentStatus] || "#ffffff",
         cursor: "pointer",
       }}
     >

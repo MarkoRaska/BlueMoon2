@@ -6,7 +6,7 @@ interface Submission {
   credit: { number: number; name: string };
   student: { first_name: string; last_name: string };
   current_decision: "Undecided" | "TBD" | "Earned" | "Not Earned";
-  state: "Unreviewed" | "In Progress" | "Complete";
+  status: "Unreviewed" | "In Progress" | "Complete";
   rationale: string;
   feedback: string;
   notes: string;
