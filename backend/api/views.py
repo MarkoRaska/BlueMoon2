@@ -143,6 +143,13 @@ class SaveFeedbackView(APIView):
         try:
             submission = Submission.objects.get(id=submission_id)
             submission.feedback = feedback
+
+            # Update status based on feedback content
+            if submission.status == "UN" and feedback.strip():
+                submission.status = "RE"
+            elif submission.status == "RE" and not feedback.strip():
+                submission.status = "UN"
+
             submission.save()
 
             cache_key = f'assigned_submissions_{submission.reader.profile.user.id}'
@@ -151,6 +158,7 @@ class SaveFeedbackView(APIView):
                 for cached_submission in cached_data:
                     if cached_submission['id'] == submission_id:
                         cached_submission['feedback'] = feedback
+                        cached_submission['status'] = submission.status
                 cache.set(cache_key, cached_data, timeout=300)
 
             return Response({"detail": "Feedback saved successfully."}, status=200)
