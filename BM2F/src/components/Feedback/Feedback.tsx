@@ -22,7 +22,8 @@ const Feedback = ({
 }: FeedbackProps) => {
   const [, setLeftOffset] = useState(0);
   const [bottomOffset, setBottomOffset] = useState(0);
-  const { submissions, updateSubmission } = useSubmissions();
+  const { submissions, updateSubmission, toggleSubmissionStatus } =
+    useSubmissions();
   const [decision, setDecision] = useState("TB");
 
   useEffect(() => {
@@ -110,6 +111,10 @@ const Feedback = ({
     }
   };
 
+  const handleToggleStatus = () => {
+    toggleSubmissionStatus(submissionId);
+  };
+
   return (
     <div
       className="feedback-container"
@@ -139,6 +144,7 @@ const Feedback = ({
         onChange={(e) => handleFeedbackChange(e.target.value)}
         autoSize={{ minRows: 3, maxRows: 10 }}
       />
+      <button onClick={handleToggleStatus}>Toggle Status</button>
     </div>
   );
 };

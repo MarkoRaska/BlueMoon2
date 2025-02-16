@@ -6,7 +6,7 @@ interface Submission {
   credit: { number: number; name: string };
   student: { first_name: string; last_name: string };
   current_decision: "Undecided" | "TBD" | "Earned" | "Not Earned";
-  status: "Unreviewed" | "In Progress" | "Complete";
+  status: "UN" | "RE" | "CO";
   rationale: string;
   feedback: string;
   notes: string;
@@ -16,6 +16,7 @@ interface SubmissionContextProps {
   submissions: Submission[];
   setSubmissions: React.Dispatch<React.SetStateAction<Submission[]>>;
   updateSubmission: (updatedSubmission: Submission) => void;
+  toggleSubmissionStatus: (submissionId: string) => void;
 }
 
 const SubmissionContext = createContext<SubmissionContextProps | undefined>(
@@ -64,9 +65,35 @@ export const SubmissionProvider: React.FC = ({ children }) => {
     });
   };
 
+  const toggleSubmissionStatus = async (submissionId: string) => {
+    try {
+      const response = await axiosInstance.post(
+        "/api/toggle_submission_status/",
+        {
+          submissionId,
+        }
+      );
+      const newStatus = response.data.new_status;
+      setSubmissions((prevSubmissions) =>
+        prevSubmissions.map((submission) =>
+          submission.id === submissionId
+            ? { ...submission, status: newStatus }
+            : submission
+        )
+      );
+    } catch (error) {
+      console.error("Failed to toggle submission status", error);
+    }
+  };
+
   return (
     <SubmissionContext.Provider
-      value={{ submissions, setSubmissions, updateSubmission }}
+      value={{
+        submissions,
+        setSubmissions,
+        updateSubmission,
+        toggleSubmissionStatus,
+      }}
     >
       {children}
     </SubmissionContext.Provider>
