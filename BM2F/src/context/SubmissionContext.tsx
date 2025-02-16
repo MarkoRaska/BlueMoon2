@@ -56,11 +56,21 @@ export const SubmissionProvider: React.FC = ({ children }) => {
 
   const updateSubmission = (updatedSubmission: Submission) => {
     setSubmissions((prevSubmissions) => {
-      const updatedSubmissions = prevSubmissions.map((submission) =>
-        submission.id === updatedSubmission.id
-          ? { ...submission, ...updatedSubmission }
-          : submission
-      );
+      const updatedSubmissions = prevSubmissions.map((submission) => {
+        if (submission.id === updatedSubmission.id) {
+          // Check feedback and update status accordingly
+          const newStatus =
+            updatedSubmission.feedback === undefined
+              ? submission.status
+              : submission.status === "UN" && updatedSubmission.feedback.trim()
+              ? "RE"
+              : submission.status === "RE" && !updatedSubmission.feedback.trim()
+              ? "UN"
+              : submission.status;
+          return { ...submission, ...updatedSubmission, status: newStatus };
+        }
+        return submission;
+      });
       return updatedSubmissions;
     });
   };
