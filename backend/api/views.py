@@ -227,7 +227,7 @@ class SaveDecisionView(APIView):
         except Exception as e:
             return Response({"detail": "Internal server error."}, status=500)
 
-class ToggleSubmissionStatusView(APIView):
+class ChangeSubmissionStatusView(APIView):
     permission_classes = [IsAuthenticated]
     parser_classes = [JSONParser]
 
@@ -239,7 +239,7 @@ class ToggleSubmissionStatusView(APIView):
 
         try:
             submission = Submission.objects.get(id=submission_id)
-            new_status = "RE" if submission.status == "UN" else "UN"
+            new_status = "CO" if submission.status == "RE" else "RE"
             submission.status = new_status
             submission.save()
 
@@ -251,7 +251,7 @@ class ToggleSubmissionStatusView(APIView):
                         cached_submission['status'] = new_status
                 cache.set(cache_key, cached_data, timeout=300)
 
-            return Response({"detail": "Status toggled successfully.", "new_status": new_status}, status=200)
+            return Response({"detail": "Status changed successfully.", "new_status": new_status}, status=200)
         except Submission.DoesNotExist:
             return Response({"detail": "Submission not found."}, status=404)
         except Exception as e:

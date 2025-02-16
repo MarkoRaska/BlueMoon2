@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback } from "react";
-import { Input, Select } from "antd";
+import { Input, Select, Button } from "antd";
 import axiosInstance from "../../utils/axiosInstance";
 import { debounce } from "../../utils/debounce";
 import { useSubmissions } from "../../context/SubmissionContext";
@@ -22,7 +22,8 @@ const Feedback = ({
 }: FeedbackProps) => {
   const [, setLeftOffset] = useState(0);
   const [bottomOffset, setBottomOffset] = useState(0);
-  const { submissions, updateSubmission } = useSubmissions();
+  const { submissions, updateSubmission, toggleSubmissionStatus } =
+    useSubmissions();
   const [decision, setDecision] = useState("TB");
 
   useEffect(() => {
@@ -110,6 +111,25 @@ const Feedback = ({
     }
   };
 
+  const handleToggleStatus = () => {
+    toggleSubmissionStatus(submissionId);
+  };
+
+  const decisionText = (decision: string) => {
+    switch (decision) {
+      case "TB":
+        return "To be determined";
+      case "EA":
+        return "Earned";
+      case "NE":
+        return "Not Earned";
+      default:
+        return decision;
+    }
+  };
+
+  const submission = submissions.find((sub) => sub.id === submissionId);
+
   return (
     <div
       className="feedback-container"
@@ -123,22 +143,40 @@ const Feedback = ({
         bottom: `${bottomOffset}px`,
       }}
     >
-      <h2>{student}</h2>
-      <h3>Credit: {credit}</h3>
-      <Select
-        value={decision}
-        onChange={(value) => saveDecision(value)}
-        style={{ width: 200, marginBottom: 10 }}
-      >
-        <Select.Option value="TB">TBD</Select.Option>
-        <Select.Option value="EA">Earned</Select.Option>
-        <Select.Option value="NE">Not Earned</Select.Option>
-      </Select>
-      <Input.TextArea
-        value={feedbackState}
-        onChange={(e) => handleFeedbackChange(e.target.value)}
-        autoSize={{ minRows: 3, maxRows: 10 }}
-      />
+      <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div>
+          <h2>{student}</h2>
+          <h3>Credit: {credit}</h3>
+        </div>
+        <Button onClick={handleToggleStatus}>
+          {submission?.status === "CO"
+            ? "Mark as In Progress"
+            : "Complete Credit"}
+        </Button>
+      </div>
+      {submission?.status === "CO" ? (
+        <>
+          <h1>{decisionText(decision)}</h1>
+          <h1>{feedbackState}</h1>
+        </>
+      ) : (
+        <>
+          <Select
+            value={decision}
+            onChange={(value) => saveDecision(value)}
+            style={{ width: 200, marginBottom: 10 }}
+          >
+            <Select.Option value="TB">To be determined</Select.Option>
+            <Select.Option value="EA">Earned</Select.Option>
+            <Select.Option value="NE">Not Earned</Select.Option>
+          </Select>
+          <Input.TextArea
+            value={feedbackState}
+            onChange={(e) => handleFeedbackChange(e.target.value)}
+            autoSize={{ minRows: 3, maxRows: 10 }}
+          />
+        </>
+      )}
     </div>
   );
 };

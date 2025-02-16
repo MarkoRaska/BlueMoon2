@@ -78,7 +78,7 @@ export const SubmissionProvider: React.FC = ({ children }) => {
   const toggleSubmissionStatus = async (submissionId: string) => {
     try {
       const response = await axiosInstance.post(
-        "/api/toggle_submission_status/",
+        "/api/change_submission_status/",
         {
           submissionId,
         }
@@ -92,7 +92,7 @@ export const SubmissionProvider: React.FC = ({ children }) => {
         )
       );
     } catch (error) {
-      console.error("Failed to toggle submission status", error);
+      console.error("Failed to change submission status", error);
     }
   };
 

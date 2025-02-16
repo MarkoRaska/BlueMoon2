@@ -21,5 +21,5 @@ urlpatterns = [
     path('save_feedback/', views.SaveFeedbackView.as_view(), name='save_feedback'),
     path('save_notes/', views.SaveNotesView.as_view(), name='save_notes'),  # Ensure this path is correctly defined
     path('save_decision/', views.SaveDecisionView.as_view(), name='save_decision'),
-    path('toggle_submission_status/', views.ToggleSubmissionStatusView.as_view(), name='toggle_submission_status'),
+    path('change_submission_status/', views.ChangeSubmissionStatusView.as_view(), name='change_submission_status'),
 ]
