@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Feedback from "../Feedback";
 import NotePad from "../NotePad";
+import History from "../History";
 import { useSubmissions } from "../../context/SubmissionContext";
 import "./SubmissionViewer.css";
 
@@ -22,6 +23,7 @@ const SubmissionViewer = ({
   const { submissions, updateSubmission } = useSubmissions();
   const [feedback, setFeedback] = useState("");
   const [notes, setNotes] = useState("");
+  const [activeTab, setActiveTab] = useState("Submission");
 
   const submission = submissions.find(
     (submission) => submission.id === submissionId
@@ -62,6 +64,10 @@ const SubmissionViewer = ({
     if (currentIndex < submissions.length - 1) {
       onNavigate(submissions[currentIndex + 1].id);
     }
+  };
+
+  const handleTabClick = (tab: string) => {
+    setActiveTab(tab);
   };
 
   if (!submission) {
@@ -130,16 +136,40 @@ const SubmissionViewer = ({
               transform: "translateX(-50%)",
             }}
           >
-            <p style={{ fontSize: "20px", margin: "0" }}>Submission</p>
+            <p
+              style={{ fontSize: "20px", margin: "0", cursor: "pointer" }}
+              onClick={() => handleTabClick("Submission")}
+            >
+              Submission
+            </p>
           </div>
           <div
             style={{
               position: "absolute",
-              right: "25%",
-              transform: "translateX(50%)",
+              left: "50%",
+              transform: "translateX(-50%)",
             }}
           >
-            <p style={{ fontSize: "20px", margin: "0" }}>Feedback</p>
+            <p
+              style={{ fontSize: "20px", margin: "0", cursor: "pointer" }}
+              onClick={() => handleTabClick("Feedback")}
+            >
+              Feedback
+            </p>
+          </div>
+          <div
+            style={{
+              position: "absolute",
+              left: "75%",
+              transform: "translateX(-50%)",
+            }}
+          >
+            <p
+              style={{ fontSize: "20px", margin: "0", cursor: "pointer" }}
+              onClick={() => handleTabClick("History")}
+            >
+              History
+            </p>
           </div>
           <button
             onClick={handleNext}
@@ -156,13 +186,32 @@ const SubmissionViewer = ({
           </button>
         </div>
         <div style={{ flexGrow: 1 }}>
-          <Feedback
-            feedback={feedback}
-            onFeedbackChange={handleFeedbackChange}
-            student={`${submission.student.first_name} ${submission.student.last_name}`}
-            credit={submission.credit.number}
-            submissionId={submission.id}
-          />
+          {activeTab === "Submission" && (
+            <div>
+              <h2>
+                Submission for {submission.student.first_name}{" "}
+                {submission.student.last_name}
+              </h2>
+              <p>{submission.content}</p>
+            </div>
+          )}
+          {activeTab === "Feedback" && (
+            <Feedback
+              feedback={feedback}
+              onFeedbackChange={handleFeedbackChange}
+              student={`${submission.student.first_name} ${submission.student.last_name}`}
+              credit={submission.credit.number}
+              submissionId={submission.id}
+            />
+          )}
+          {activeTab === "History" && (
+            <History
+              history={notes}
+              onHistoryChange={handleNotesChange}
+              student={`${submission.student.first_name} ${submission.student.last_name}`}
+              submissionId={submission.id}
+            />
+          )}
         </div>
         <NotePad
           student={`${submission.student.first_name} ${submission.student.last_name}`}
