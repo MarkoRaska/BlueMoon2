@@ -1,11 +1,13 @@
 import React, { useState } from "react";
 import axiosInstance from "../utils/axiosInstance";
 import { useNavigate } from "react-router-dom";
+import { useSubmissions } from "../context/SubmissionContext";
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
+  const { setSubmissions } = useSubmissions();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -16,6 +18,13 @@ const Login = () => {
       });
       localStorage.setItem("token", response.data.access);
       localStorage.setItem("refreshToken", response.data.refresh);
+
+      // Fetch submissions after successful login
+      const submissionsResponse = await axiosInstance.get(
+        "/api/readers/assigned_submissions/"
+      );
+      setSubmissions(submissionsResponse.data);
+
       navigate("/");
     } catch (error) {
       console.error("Login failed", error);
