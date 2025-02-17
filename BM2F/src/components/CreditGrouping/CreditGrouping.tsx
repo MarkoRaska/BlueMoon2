@@ -46,7 +46,7 @@ const CreditGrouping = ({
         border: "3px solid black",
         padding: "10px 13px",
         borderRadius: "10px",
-        margin: "10px",
+        margin: "5px", // Reduced margin from 10px to 5px
         display: "inline-block",
         position: "relative",
         width: "fit-content",

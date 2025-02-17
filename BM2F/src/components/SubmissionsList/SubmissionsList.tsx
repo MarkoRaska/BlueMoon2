@@ -91,6 +91,8 @@ const SubmissionsList = ({
           flexDirection: "column",
           justifyContent: "space-between",
           color: "white",
+          paddingBottom: "10px",
+          marginBottom: "5px",
         }}
       >
         <div style={{ color: "white" }}>Submissions List</div>
