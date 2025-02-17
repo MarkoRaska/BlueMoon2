@@ -50,18 +50,38 @@ const ReaderHome = () => {
   );
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "100vh" }}>
+    <div
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        height: "100vh",
+        backgroundColor: "#242424",
+        color: "white",
+      }}
+    >
       <Navbar onIconClick={handleIconClick} />
       <div style={{ display: "flex", flexGrow: 1 }}>
         {isSubmissionListOpen && (
-          <div style={{ maxHeight: "calc(100vh - 70px)", flexShrink: 0 }}>
+          <div
+            style={{
+              maxHeight: "calc(100vh - 70px)",
+              flexShrink: 0,
+              backgroundColor: "#242424",
+            }}
+          >
             <SubmissionsList
               submissions={sortedSubmissions}
               onSubmissionClick={handleSubmissionClick}
             />
           </div>
         )}
-        <div style={{ flexGrow: 1, height: "calc(100vh - 70px)" }}>
+        <div
+          style={{
+            flexGrow: 1,
+            height: "calc(100vh - 70px)",
+            backgroundColor: "#242424",
+          }}
+        >
           {selectedSubmissionData ? (
             <SubmissionViewer
               submissionId={selectedSubmissionId}

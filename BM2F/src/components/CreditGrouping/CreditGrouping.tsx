@@ -44,17 +44,18 @@ const CreditGrouping = ({
       onClick={toggleList}
       style={{
         border: "3px solid black",
-        padding: "10px 20px",
+        padding: "10px 13px",
         borderRadius: "10px",
         margin: "10px",
         display: "inline-block",
         position: "relative",
-        width: "300px",
+        width: "fit-content",
         height: isOpen ? "auto" : "60px",
         boxSizing: "border-box",
         cursor: "pointer",
         flexShrink: 0,
-        backgroundColor: allComplete ? "#b0ffb0" : "white",
+        backgroundColor: allComplete ? "#b0ffb0" : "#242424",
+        color: "white",
       }}
     >
       <div
@@ -64,6 +65,7 @@ const CreditGrouping = ({
           left: "10px",
           fontSize: "25px",
           fontWeight: "bold",
+          color: "white",
         }}
       >
         {credit.number}
@@ -74,12 +76,13 @@ const CreditGrouping = ({
           top: "14px",
           right: "10px",
           fontSize: "20px",
+          color: "white",
         }}
       >
         {isOpen ? "▲" : "▼"}
       </div>
-      {isOpen && (
-        <div style={{ marginTop: "40px" }}>
+      {isOpen ? (
+        <div style={{ marginTop: "40px", color: "white" }}>
           {submissions.map((submission, index) => (
             <div
               key={submission.id}
@@ -99,6 +102,17 @@ const CreditGrouping = ({
               />
             </div>
           ))}
+        </div>
+      ) : (
+        <div style={{ visibility: "hidden", height: "0" }}>
+          <Submission
+            id="placeholder"
+            credit={credit.number.toString()}
+            student={{ first_name: "", last_name: "" }}
+            decision="TB"
+            status="Unreviewed"
+            onClick={() => {}}
+          />
         </div>
       )}
     </div>

@@ -120,9 +120,9 @@ const Feedback = ({
       case "TB":
         return "To be determined";
       case "EA":
-        return "Earned";
+        return "Credit Earned";
       case "NE":
-        return "Not Earned";
+        return "Credit Not Yet Earned";
       default:
         return decision;
     }
@@ -137,46 +137,114 @@ const Feedback = ({
         border: "none",
         padding: "10px",
         boxSizing: "border-box",
-        backgroundColor: "white",
+        backgroundColor: "#3d3d3d",
+        color: "white",
         zIndex: 1000,
         overflowY: "auto",
         bottom: `${bottomOffset}px`,
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "flex-start",
+        paddingTop: "70px", // Adjust for navbar height
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between" }}>
-        <div>
-          <h2>{student}</h2>
-          <h3>Credit: {credit}</h3>
+      <div
+        style={{
+          width: "8.5in",
+          height: "11in",
+          backgroundColor: "#242424",
+          color: "white",
+          padding: "0.8in",
+          boxShadow: "0 0 10px rgba(0, 0, 0, 0.1)",
+          overflow: "hidden",
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div>
+            <h2 style={{ color: "white" }}>{student}</h2>
+            <h3 style={{ color: "white" }}>Credit: {credit}</h3>
+          </div>
         </div>
-        <Button onClick={handleToggleStatus}>
-          {submission?.status === "CO"
-            ? "Mark as In Progress"
-            : "Complete Credit"}
-        </Button>
+        {submission?.status === "CO" ? (
+          <>
+            <h1 style={{ color: "white" }}>{decisionText(decision)}</h1>
+            <h1 style={{ color: "white" }}>{feedbackState}</h1>
+          </>
+        ) : (
+          <>
+            <Select
+              value={decision}
+              onChange={(value) => saveDecision(value)}
+              style={{
+                width: "auto", // Adjust width to fit the text
+                marginBottom: 10,
+                backgroundColor: "#242424",
+                color: "white",
+                fontSize: "16px", // Match font size
+                fontFamily: "inherit", // Match font family
+                border: "none", // Remove outline
+                boxShadow: "none", // Remove outline
+                textAlign: "left", // Align text to the left
+                paddingLeft: 0, // Remove left padding
+              }}
+              dropdownStyle={{ backgroundColor: "#242424" }}
+              optionLabelProp="label"
+              dropdownRender={(menu) => (
+                <div style={{ backgroundColor: "#242424" }}>{menu}</div>
+              )}
+              dropdownMatchSelectWidth={false}
+              suffixIcon={null} // Remove the dropdown arrow
+            >
+              <Select.Option
+                value="TB"
+                style={{
+                  color: "yellow",
+                  backgroundColor: "#242424",
+                  textAlign: "left",
+                  paddingLeft: 0, // Remove left padding
+                }}
+                label={
+                  <span style={{ color: "yellow" }}>To be determined</span>
+                }
+              >
+                To be determined
+              </Select.Option>
+              <Select.Option
+                value="EA"
+                style={{
+                  color: "green",
+                  backgroundColor: "#242424",
+                  textAlign: "left",
+                  paddingLeft: 0, // Remove left padding
+                }}
+                label={<span style={{ color: "green" }}>Credit Earned</span>}
+              >
+                Credit Earned
+              </Select.Option>
+              <Select.Option
+                value="NE"
+                style={{
+                  color: "red",
+                  backgroundColor: "#242424",
+                  textAlign: "left",
+                  paddingLeft: 0, // Remove left padding
+                }}
+                label={
+                  <span style={{ color: "red" }}>Credit Not Yet Earned</span>
+                }
+              >
+                Credit Not Yet Earned
+              </Select.Option>
+            </Select>
+            <Input.TextArea
+              value={feedbackState}
+              onChange={(e) => handleFeedbackChange(e.target.value)}
+              autoSize={{ minRows: 3, maxRows: 10 }}
+              style={{ backgroundColor: "#242424", color: "white" }}
+            />
+          </>
+        )}
       </div>
-      {submission?.status === "CO" ? (
-        <>
-          <h1>{decisionText(decision)}</h1>
-          <h1>{feedbackState}</h1>
-        </>
-      ) : (
-        <>
-          <Select
-            value={decision}
-            onChange={(value) => saveDecision(value)}
-            style={{ width: 200, marginBottom: 10 }}
-          >
-            <Select.Option value="TB">To be determined</Select.Option>
-            <Select.Option value="EA">Earned</Select.Option>
-            <Select.Option value="NE">Not Earned</Select.Option>
-          </Select>
-          <Input.TextArea
-            value={feedbackState}
-            onChange={(e) => handleFeedbackChange(e.target.value)}
-            autoSize={{ minRows: 3, maxRows: 10 }}
-          />
-        </>
-      )}
     </div>
   );
 };

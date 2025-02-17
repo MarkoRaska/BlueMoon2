@@ -24,6 +24,18 @@ const statusColors = {
   CO: "#d0ffd0", // Complete
 };
 
+const statusBorders = {
+  UN: "3px solid white", // Unreviewed
+  RE: "3px solid yellow", // In Progress
+  CO: "3px solid #32CD32", // Complete
+};
+
+const statusTextColors = {
+  UN: "white", // Unreviewed
+  RE: "yellow", // In Progress
+  CO: "#32CD32", // Complete
+};
+
 const Submission = ({
   id,
   credit,
@@ -95,19 +107,31 @@ const Submission = ({
       className="submission-container"
       style={{
         display: "flex",
-        border: "3px solid black",
+        border: statusBorders[currentStatus],
         padding: "10px",
         width: "250px",
         height: "50px",
         borderRadius: "10px",
         justifyContent: "space-between",
         alignItems: "center",
-        backgroundColor: statusColors[currentStatus] || "#ffffff",
+        backgroundColor: "#242424",
         cursor: "pointer",
+        color: statusTextColors[currentStatus],
       }}
     >
-      <p style={{ fontSize: "20px", marginRight: "20px" }}>{credit}</p>
-      <p className="submission-name" style={{ flex: 1 }}>
+      <p
+        style={{
+          fontSize: "20px",
+          marginRight: "20px",
+          color: statusTextColors[currentStatus],
+        }}
+      >
+        {credit}
+      </p>
+      <p
+        className="submission-name"
+        style={{ flex: 1, color: statusTextColors[currentStatus] }}
+      >
         {fullName}
       </p>
       <div style={{ fontSize: "24px" }}>{decisionIcons[currentDecision]}</div>

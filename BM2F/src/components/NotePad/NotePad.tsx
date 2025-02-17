@@ -110,17 +110,26 @@ const NotePad = ({
   return (
     <div
       className="notepad-container"
-      style={{ height: `${height}px`, position: "absolute", bottom: 0 }}
+      style={{
+        height: `${height}px`,
+        position: "absolute",
+        bottom: 0,
+        backgroundColor: "#3d3d3d",
+        color: "white",
+      }}
       ref={containerRef}
     >
       <div className="notepad-handle" onMouseDown={handleMouseDown}>
-        <span className="notepad-icon">⇕</span>
+        <span className="notepad-icon" style={{ color: "white" }}>
+          ⇕
+        </span>
       </div>
       <div className="notepad-content">
         <Input.TextArea
           value={notesState}
           onChange={(e) => handleNotesChange(e.target.value)}
           autoSize={{ minRows: 3, maxRows: 10 }}
+          style={{ backgroundColor: "#3d3d3d", color: "white" }}
         />
       </div>
     </div>

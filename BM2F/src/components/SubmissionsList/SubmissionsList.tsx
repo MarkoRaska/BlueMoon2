@@ -54,7 +54,7 @@ const SubmissionsList = ({
     <div
       className="submissions-list"
       style={{
-        border: "3px solid black",
+        border: "3px solid #0091ff",
         padding: "0",
         margin: "0",
         height: "100%",
@@ -67,16 +67,18 @@ const SubmissionsList = ({
         boxSizing: "border-box",
         scrollbarWidth: "none",
         msOverflowStyle: "none",
+        backgroundColor: "#3d3d3d",
+        color: "white",
       }}
     >
       <div
         className="sticky-header"
         style={{
           width: "100%",
-          backgroundColor: "lightgray",
+          backgroundColor: "#242424",
           textAlign: "left",
           padding: "10px 10px",
-          borderBottom: "3px solid black",
+          borderBottom: "1px solid white",
           position: "sticky",
           top: 0,
           left: 0,
@@ -88,9 +90,10 @@ const SubmissionsList = ({
           display: "flex",
           flexDirection: "column",
           justifyContent: "space-between",
+          color: "white",
         }}
       >
-        <div>Submissions List</div>
+        <div style={{ color: "white" }}>Submissions List</div>
         <MultiProgress
           className="multi-progress-bar"
           elements={progressBarElements}
@@ -100,7 +103,7 @@ const SubmissionsList = ({
       <style>
         {`
           .submissions-list::-webkit-scrollbar {
-            display: none;
+            display: none;  
           }
         `}
       </style>

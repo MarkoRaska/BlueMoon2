@@ -12,3 +12,27 @@
 .feedback-container::-webkit-scrollbar {
   display: none; /* Hide scrollbar for Chrome, Safari, and Opera */
 }
+
+.ant-select-selector {
+  background-color: #242424 !important;
+  color: white !important;
+  font-size: 16px !important; /* Match font size */
+  font-family: inherit !important; /* Match font family */
+  border: none !important; /* Remove outline */
+  box-shadow: none !important; /* Remove outline */
+  text-align: left !important; /* Align text to the left */
+  padding-left: 0 !important; /* Remove left padding */
+  width: auto !important; /* Adjust width to fit the text */
+}
+
+.ant-select-selection-item {
+  color: white !important;
+  font-size: 16px !important; /* Match font size */
+  font-family: inherit !important; /* Match font family */
+  text-align: left !important; /* Align text to the left */
+  padding-left: 0 !important; /* Remove left padding */
+}
+
+.ant-select-arrow {
+  display: none !important; /* Remove the dropdown arrow */
+}

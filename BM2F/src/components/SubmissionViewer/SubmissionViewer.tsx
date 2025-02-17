@@ -4,6 +4,7 @@ import NotePad from "../NotePad";
 import History from "../History";
 import { useSubmissions } from "../../context/SubmissionContext";
 import "./SubmissionViewer.css";
+import { Button } from "antd";
 
 interface SubmissionViewerProps {
   submissionId: string | null;
@@ -20,7 +21,8 @@ const SubmissionViewer = ({
   isSubmissionListOpen,
   onNavigate,
 }: SubmissionViewerProps) => {
-  const { submissions, updateSubmission } = useSubmissions();
+  const { submissions, updateSubmission, toggleSubmissionStatus } =
+    useSubmissions();
   const [feedback, setFeedback] = useState("");
   const [notes, setNotes] = useState("");
   const [activeTab, setActiveTab] = useState("Submission");
@@ -70,6 +72,12 @@ const SubmissionViewer = ({
     setActiveTab(tab);
   };
 
+  const handleToggleStatus = () => {
+    if (submission) {
+      toggleSubmissionStatus(submission.id);
+    }
+  };
+
   if (!submission) {
     return <div>Select a submission to view details</div>;
   }
@@ -86,6 +94,8 @@ const SubmissionViewer = ({
         height: "100%",
         width: "100%",
         border: "none",
+        backgroundColor: "#242424",
+        color: "white",
       }}
     >
       <div
@@ -98,9 +108,10 @@ const SubmissionViewer = ({
           boxSizing: "border-box",
           height: "100%",
           width: "100%",
-          backgroundColor: "white",
+          backgroundColor: "#242424",
           zIndex: 1000,
-          border: "3px solid black",
+          border: "3px solid",
+          borderImage: "linear-gradient(to right, #0091ff, #00ccff) 1",
           display: "flex",
           flexDirection: "column",
         }}
@@ -108,12 +119,13 @@ const SubmissionViewer = ({
         <div
           style={{
             height: "60px",
-            backgroundColor: "#f0f0f0",
+            backgroundColor: "#242424",
             borderBottom: "1px solid #ccc",
             display: "flex",
             justifyContent: "center",
             alignItems: "center",
             position: "relative",
+            zIndex: 1002, // Ensure it stays above other components
           }}
         >
           <button
@@ -125,6 +137,7 @@ const SubmissionViewer = ({
               border: "none",
               fontSize: "20px",
               cursor: "pointer",
+              color: "white",
             }}
           >
             &larr;
@@ -137,7 +150,12 @@ const SubmissionViewer = ({
             }}
           >
             <p
-              style={{ fontSize: "20px", margin: "0", cursor: "pointer" }}
+              style={{
+                fontSize: "20px",
+                margin: "0",
+                cursor: "pointer",
+                color: "white",
+              }}
               onClick={() => handleTabClick("Submission")}
             >
               Submission
@@ -151,7 +169,12 @@ const SubmissionViewer = ({
             }}
           >
             <p
-              style={{ fontSize: "20px", margin: "0", cursor: "pointer" }}
+              style={{
+                fontSize: "20px",
+                margin: "0",
+                cursor: "pointer",
+                color: "white",
+              }}
               onClick={() => handleTabClick("Feedback")}
             >
               Feedback
@@ -165,7 +188,12 @@ const SubmissionViewer = ({
             }}
           >
             <p
-              style={{ fontSize: "20px", margin: "0", cursor: "pointer" }}
+              style={{
+                fontSize: "20px",
+                margin: "0",
+                cursor: "pointer",
+                color: "white",
+              }}
               onClick={() => handleTabClick("History")}
             >
               History
@@ -180,19 +208,39 @@ const SubmissionViewer = ({
               border: "none",
               fontSize: "20px",
               cursor: "pointer",
+              color: "white",
             }}
           >
             &rarr;
           </button>
+          <Button
+            onClick={handleToggleStatus}
+            style={{
+              position: "absolute",
+              right: "10px",
+              top: "70px",
+              backgroundColor: submission?.status === "CO" ? "white" : "green",
+              color: submission?.status === "CO" ? "black" : "white",
+              border: "none",
+              padding: "10px",
+              cursor: "pointer",
+              zIndex: 1001, // Ensure it stays above other components
+              marginTop: "5px",
+            }}
+          >
+            {submission?.status === "CO" ? "Uncomplete" : "Complete"}
+          </Button>
         </div>
-        <div style={{ flexGrow: 1 }}>
+        <div
+          style={{ flexGrow: 1, backgroundColor: "#3d3d3d", color: "white" }}
+        >
           {activeTab === "Submission" && (
             <div>
-              <h2>
+              <h2 style={{ color: "white" }}>
                 Submission for {submission.student.first_name}{" "}
                 {submission.student.last_name}
               </h2>
-              <p>{submission.content}</p>
+              <p style={{ color: "white" }}>{submission.content}</p>
             </div>
           )}
           {activeTab === "Feedback" && (

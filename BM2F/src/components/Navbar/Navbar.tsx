@@ -4,7 +4,7 @@ const Navbar = ({ onIconClick }: { onIconClick: () => void }) => {
   return (
     <div
       style={{
-        backgroundColor: "lightblue",
+        background: "linear-gradient(to right, #0091ff, #00ccff)", // Gradient blue
         height: "70px",
         display: "flex",
         alignItems: "center",
