@@ -80,7 +80,9 @@ class SubmissionSerializer(serializers.ModelSerializer):
     def get_credit(self, obj):
         return {
             'number': obj.credit.number,
-            'name': obj.credit.name
+            'name': obj.credit.name,
+            'simple_description': obj.credit.simple_description,
+            'long_description': obj.credit.detailed_description
         }
 
     def get_reader(self, obj):

@@ -11,6 +11,7 @@ interface FeedbackProps {
   student: string;
   credit: number;
   submissionId: string;
+  cycle: string; // Add this line
 }
 
 const Feedback = ({
@@ -19,6 +20,7 @@ const Feedback = ({
   student,
   credit,
   submissionId,
+  cycle, // Add this line
 }: FeedbackProps) => {
   const [, setLeftOffset] = useState(0);
   const [bottomOffset, setBottomOffset] = useState(0);
@@ -162,13 +164,54 @@ const Feedback = ({
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <div>
             <h2 style={{ color: "white" }}>{student}</h2>
-            <h3 style={{ color: "white" }}>Credit: {credit}</h3>
+            <h3 style={{ color: "white" }}>{cycle}</h3>{" "}
+            {/* Update cycle format */}
+            <h3 style={{ color: "white" }}>{credit}</h3>{" "}
+            {/* Update credit format */}
           </div>
         </div>
         {submission?.status === "CO" ? (
           <>
-            <h1 style={{ color: "white" }}>{decisionText(decision)}</h1>
-            <h1 style={{ color: "white" }}>{feedbackState}</h1>
+            <h1
+              style={{
+                color:
+                  decision === "EA"
+                    ? "green"
+                    : decision === "NE"
+                    ? "red"
+                    : "yellow",
+                marginTop: "4px",
+              }}
+            >
+              {decisionText(decision)}
+            </h1>
+            <h2
+              style={{
+                color: "lightgrey",
+                fontSize: "20px",
+                marginTop: "24px",
+              }}
+            >
+              Feedback
+            </h2>{" "}
+            {/* Add whitespace */}
+            <Input.TextArea
+              value={feedbackState}
+              readOnly // Make the text editor read-only
+              style={{
+                backgroundColor: "#242424",
+                color: "lightgrey",
+                maxHeight: "calc(100% - 150px)",
+                minHeight: "calc(100% - 150px)",
+                marginTop: "12px",
+                border: "none",
+                boxShadow: "none",
+                resize: "none",
+                textAlign: "left",
+                padding: 0,
+                fontSize: "15px",
+              }}
+            />
           </>
         ) : (
           <>
@@ -177,7 +220,7 @@ const Feedback = ({
               onChange={(value) => saveDecision(value)}
               style={{
                 width: "auto", // Adjust width to fit the text
-                marginBottom: 10,
+                marginBottom: 0, // Adjust bottom margin to hug the text
                 backgroundColor: "#242424",
                 color: "white",
                 fontSize: "16px", // Match font size
@@ -236,11 +279,32 @@ const Feedback = ({
                 Credit Not Yet Earned
               </Select.Option>
             </Select>
+            <h2
+              style={{
+                color: "lightgrey",
+                fontSize: "20px",
+                marginTop: "20px",
+              }}
+            >
+              Feedback
+            </h2>{" "}
+            {/* Add whitespace */}
             <Input.TextArea
               value={feedbackState}
               onChange={(e) => handleFeedbackChange(e.target.value)}
-              autoSize={{ minRows: 3, maxRows: 10 }}
-              style={{ backgroundColor: "#242424", color: "white" }}
+              style={{
+                backgroundColor: "#242424",
+                color: "lightgrey", // Change font color to light grey
+                maxHeight: "calc(100% - 150px)",
+                minHeight: "calc(100% - 150px)",
+                marginTop: "12px",
+                border: "none", // Remove border
+                boxShadow: "none", // Remove border that fades in on focus
+                resize: "none", // Remove the ability to adjust the textbox
+                textAlign: "left", // Align text to the left
+                padding: 0, // Remove padding
+                fontSize: "15px", // Increase font size
+              }}
             />
           </>
         )}

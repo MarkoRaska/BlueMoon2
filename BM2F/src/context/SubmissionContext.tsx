@@ -10,6 +10,7 @@ interface Submission {
   rationale: string;
   feedback: string;
   notes: string;
+  cycle: string; // Add this line
 }
 
 interface SubmissionContextProps {

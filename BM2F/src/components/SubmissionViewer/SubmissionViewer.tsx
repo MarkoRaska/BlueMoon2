@@ -248,8 +248,9 @@ const SubmissionViewer = ({
               feedback={feedback}
               onFeedbackChange={handleFeedbackChange}
               student={`${submission.student.first_name} ${submission.student.last_name}`}
-              credit={submission.credit.number}
+              credit={`${submission.credit.number} ${submission.credit.name}`} // Update credit format
               submissionId={submission.id}
+              cycle={`${submission.cycle.season} ${submission.cycle.year}`} // Correct cycle prop
             />
           )}
           {activeTab === "History" && (
