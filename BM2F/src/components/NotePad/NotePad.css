@@ -2,11 +2,8 @@
   position: absolute;
   bottom: 0;
   width: 100%;
-  /* transition: height 0.1s ease; */ /* Faster transition, commented out for instant adjustment */
-  background-color: #f0f0f0; /* Light grey background */
-  border-top: 1px solid #ccc; /* Top border */
-  z-index: 1001; /* Ensure it is above other components */
-  overflow: hidden; /* Prevent content overflow */
+  z-index: 1001;
+  overflow: hidden; 
 }
 
 .notepad-handle {
@@ -21,15 +18,17 @@
   width: 100%;
 }
 
-.notepad-icon {
+/* .notepad-icon {
   font-size: 20px;
-  color: #333; /* Dark grey color */
-}
+  color: #333; 
+} */
 
 .notepad-content {
-  background-color: white;
   height: calc(100% - 20px); /* Adjusted for larger handle */
   padding-top: 20px; /* Ensure content does not overlap with handle */
+  border-top: none !important; /* Remove border from the top */
 }
+
+
 
 

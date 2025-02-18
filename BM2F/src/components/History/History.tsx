@@ -5,22 +5,20 @@ interface HistoryProps {
   onHistoryChange: (history: string) => void;
   student: string;
   submissionId: string;
+  style?: React.CSSProperties; // Add style prop
 }
 
-const History: React.FC<HistoryProps> = ({
-  history,
-  onHistoryChange,
-  student,
-  submissionId,
-}) => {
+const History: React.FC<HistoryProps> = ({ student, style }) => {
   return (
-    <div style={{ backgroundColor: "#3d3d3d", color: "white" }}>
+    <div
+      style={{
+        ...style,
+        backgroundColor: "#3d3d3d",
+        color: "white",
+        outline: "3px solid #242424",
+      }}
+    >
       <h2>History for {student}</h2>
-      <textarea
-        value={history}
-        onChange={(e) => onHistoryChange(e.target.value)}
-        style={{ backgroundColor: "#3d3d3d", color: "white" }}
-      />
     </div>
   );
 };

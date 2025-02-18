@@ -26,8 +26,8 @@ const Navbar = ({ onIconClick }: { onIconClick: () => void }) => {
             background: "none",
             border: "none",
             color: "white",
-            fontSize: "20px", // Increased font size
-            fontWeight: "bold", // Bold text
+            fontSize: "20px",
+            fontWeight: "600", // Semi-bold text
             cursor: "pointer",
           }}
         >
@@ -58,28 +58,51 @@ const Navbar = ({ onIconClick }: { onIconClick: () => void }) => {
               background: "none",
               border: "none",
               color: "white",
-              fontSize: "20px", // Increased font size
-              fontWeight: "bold", // Bold text
+              fontSize: "23px", // Adjusted font size
+              fontWeight: "600", // Semi-bold text
               cursor: "pointer",
-              marginRight: "40px", // Increased margin for spacing
-              width: "150px", // Fixed width for consistency
+              marginRight: "50px", // Increased margin for spacing
+              width: "200px", // Adjusted width for consistency
+              textAlign: "right", // Align text to the right
             }}
+            onMouseOver={(e) => (e.currentTarget.style.color = "#cbf1ff")}
+            onMouseOut={(e) => (e.currentTarget.style.color = "white")}
           >
-            Credits to Read
+            Submissions
           </button>
           <button
             style={{
               background: "none",
               border: "none",
               color: "white",
-              fontSize: "20px",
-              fontWeight: "bold",
+              fontSize: "23px", // Adjusted font size
+              fontWeight: "600", // Semi-bold text
               cursor: "pointer",
-              marginLeft: "40px", // Increased margin for spacing
-              width: "150px", // Fixed width for consistency
+              marginLeft: "50px", // Increased margin for spacing
+              marginRight: "50px", // Increased margin for spacing
+              width: "200px", // Adjusted width for consistency
             }}
+            onMouseOver={(e) => (e.currentTarget.style.color = "#cbf1ff")}
+            onMouseOut={(e) => (e.currentTarget.style.color = "white")}
           >
             Reconciliation
+          </button>
+          <button
+            style={{
+              background: "none",
+              border: "none",
+              color: "white",
+              fontSize: "23px", // Adjusted font size
+              fontWeight: "600", // Semi-bold text
+              cursor: "pointer",
+              marginLeft: "50px", // Increased margin for spacing
+              width: "200px", // Adjusted width for consistency
+              textAlign: "left", // Align text to the left
+            }}
+            onMouseOver={(e) => (e.currentTarget.style.color = "#cbf1ff")}
+            onMouseOut={(e) => (e.currentTarget.style.color = "white")}
+          >
+            Panels
           </button>
         </div>
       </div>

@@ -148,6 +148,7 @@ const Feedback = ({
         justifyContent: "center",
         alignItems: "flex-start",
         paddingTop: "70px", // Adjust for navbar height
+        borderBottom: "none", // Ensure no border on the bottom
       }}
     >
       <div

@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Feedback from "../Feedback";
 import NotePad from "../NotePad";
-import History from "../History";
+// import History from "../History"; // Remove History import
 import { useSubmissions } from "../../context/SubmissionContext";
 import "./SubmissionViewer.css";
 import { Button } from "antd";
@@ -144,9 +144,10 @@ const SubmissionViewer = ({
           </button>
           <div
             style={{
-              position: "absolute",
-              left: "25%",
-              transform: "translateX(-50%)",
+              display: "flex",
+              justifyContent: "space-between",
+              width: "100%", // Ensure it spans the full width
+              padding: "0 30%", // Add padding to move buttons inward
             }}
           >
             <p
@@ -155,48 +156,23 @@ const SubmissionViewer = ({
                 margin: "0",
                 cursor: "pointer",
                 color: "white",
+                textAlign: "center", // Center text within each half
               }}
               onClick={() => handleTabClick("Submission")}
             >
               Submission
             </p>
-          </div>
-          <div
-            style={{
-              position: "absolute",
-              left: "50%",
-              transform: "translateX(-50%)",
-            }}
-          >
             <p
               style={{
                 fontSize: "20px",
                 margin: "0",
                 cursor: "pointer",
                 color: "white",
+                textAlign: "center", // Center text within each half
               }}
               onClick={() => handleTabClick("Feedback")}
             >
               Feedback
-            </p>
-          </div>
-          <div
-            style={{
-              position: "absolute",
-              left: "75%",
-              transform: "translateX(-50%)",
-            }}
-          >
-            <p
-              style={{
-                fontSize: "20px",
-                margin: "0",
-                cursor: "pointer",
-                color: "white",
-              }}
-              onClick={() => handleTabClick("History")}
-            >
-              History
             </p>
           </div>
           <button
@@ -251,14 +227,6 @@ const SubmissionViewer = ({
               credit={`${submission.credit.number} ${submission.credit.name}`} // Update credit format
               submissionId={submission.id}
               cycle={`${submission.cycle.season} ${submission.cycle.year}`} // Correct cycle prop
-            />
-          )}
-          {activeTab === "History" && (
-            <History
-              history={notes}
-              onHistoryChange={handleNotesChange}
-              student={`${submission.student.first_name} ${submission.student.last_name}`}
-              submissionId={submission.id}
             />
           )}
         </div>
