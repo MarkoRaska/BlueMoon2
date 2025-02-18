@@ -2,9 +2,8 @@ import React, { useState, useRef, useEffect, useCallback } from "react";
 import axiosInstance from "../../utils/axiosInstance";
 import { debounce } from "../../utils/debounce";
 import { useSubmissions } from "../../context/SubmissionContext";
-import { Input } from "antd";
+import { Input } from "antd"; // Import Input component from antd
 import History from "../History"; // Import History component
-import "./NotePad.css";
 
 interface NotePadProps {
   student: string;
@@ -123,13 +122,26 @@ const NotePad = ({
         padding: 0, // Remove padding
         display: "flex", // Ensure flex display
         flexDirection: "row", // Set flex direction to row
+        zIndex: 1001,
+        overflow: "hidden",
       }}
       ref={containerRef}
     >
       <div
         className="notepad-handle"
         onMouseDown={handleMouseDown}
-        style={{ backgroundColor: "black", outline: "none", borderTop: "none" }}
+        style={{
+          height: "20px", // Slightly larger handle
+          backgroundColor: "#000000",
+          cursor: "pointer",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          position: "absolute",
+          top: 0,
+          width: "100%",
+          zIndex: 1002, // Ensure handle has a higher z-index
+        }}
       >
         <span
           className="notepad-icon"
@@ -169,26 +181,32 @@ const NotePad = ({
       </div>
       <div
         className="notepad-content"
-        style={{ height: "calc(100% - 30px)", flex: 1 }} // Adjust flex property
+        style={{
+          height: "calc(100% - 20px)", // Adjusted for larger handle
+          paddingTop: "20px", // Ensure content does not overlap with handle
+          flex: "0 0 50%", // Ensure it spans half the width
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
       >
         <Input.TextArea
           value={notesState}
           onChange={(e) => handleNotesChange(e.target.value)}
           style={{
+            height: "calc(100% + 15px)", // Adjust height to fit within container
+            width: "calc(100% - 6px)", // Adjust width to fit within container
             backgroundColor: "#3d3d3d",
             color: "white",
-            marginTop: "2px",
-            border: "4px",
-            boxShadow: "none",
+            border: "none",
             resize: "none",
-            textAlign: "left",
-            padding: "7px",
-            fontSize: "15px",
             outline: "3px solid #242424",
-            borderRadius: "0",
-            marginLeft: "3px",
-            height: "calc(100% + 30px)",
-            overflow: "auto", // Allow scrolling
+            boxShadow: "none", // Remove box shadow
+            borderRadius: "0px", // Ensure 90-degree corners
+            marginBottom: "-20px",
+            overflow: "hidden", // Hide scrollbar
+            whiteSpace: "pre-wrap", // Allow text to wrap
+            overflowY: "scroll", // Enable scrolling
             scrollbarWidth: "none", // Hide scrollbar in Firefox
             msOverflowStyle: "none", // Hide scrollbar in IE and Edge
           }}
@@ -208,7 +226,11 @@ const NotePad = ({
         onHistoryChange={handleNotesChange}
         student={student}
         submissionId={submissionId}
-        style={{ flex: 1, height: "calc(100% - 30px)", marginTop: "30px" }} // Adjust flex, height, and margin properties
+        style={{
+          flex: "0 0 50%",
+          height: "calc(100% - 30px)",
+          marginTop: "30px",
+        }} // Adjust flex, height, and margin properties
       />
     </div>
   );
